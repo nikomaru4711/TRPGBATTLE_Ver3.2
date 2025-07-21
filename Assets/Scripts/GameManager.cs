@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour
 
 
         //プレイヤーの作成
-        _player1 = new Character(1, "探索者", TitleSceneManager._playerStatus[0], TitleSceneManager._playerStatus[1], null, true, _weapon1, _skill1, CharacterKind.Player);
+        //_player1 = new Character(1, "探索者", TitleSceneManager._playerStatus[0], TitleSceneManager._playerStatus[1], null, true, _weapon1, _skill1, CharacterKind.Player);
         SetCharacterAray(_player1);
         //プレイヤーの技能のUIButton生成
         _uiManager.CreateIcon(_player1);
@@ -445,11 +445,11 @@ public class GameManager : MonoBehaviour
          * 4:投擲
          * 5:回避
          */
-        _weapon1[0] = new Weapon("ナイフで刺す", "こぶし", TitleSceneManager._playerStatus[3], 1, 6, false, Move.Knife);
-        _weapon1[1] = new ThrowTorch("松明を投げる", "投擲", TitleSceneManager._playerStatus[4], 1, 3, true, Move.Throw);
-        _weapon1[2] = new Weapon("殴る", "こぶし", TitleSceneManager._playerStatus[3], 1, 3, false, Move.Panch);
-        _skill1[0] = new FirstAid("応急処置を施す", "応急手当", TitleSceneManager._playerStatus[2], Move.FirstAid);
-        _skill1[1] = new Dodge("避ける", "回避", TitleSceneManager._playerStatus[5], Move.Dodge);
+        //_weapon1[0] = new Weapon("ナイフで刺す", "こぶし", TitleSceneManager._playerStatus[3], 1, 6, false, Move.Knife);
+        //_weapon1[1] = new ThrowTorch("松明を投げる", "投擲", TitleSceneManager._playerStatus[4], 1, 3, true, Move.Throw);
+        //_weapon1[2] = new Weapon("殴る", "こぶし", TitleSceneManager._playerStatus[3], 1, 3, false, Move.Panch);
+        //_skill1[0] = new FirstAid("応急処置を施す", "応急手当", TitleSceneManager._playerStatus[2], Move.FirstAid);
+        //_skill1[1] = new Dodge("避ける", "回避", TitleSceneManager._playerStatus[5], Move.Dodge);
     }
 
     //ダメージダイスを振って結果を返す。（ログにも書き込む）
