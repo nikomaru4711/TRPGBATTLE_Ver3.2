@@ -1,4 +1,5 @@
-public class Character
+using System.Collections.Generic;
+public class NewCharacter
 {
     public int id;
     public string name;
@@ -9,13 +10,10 @@ public class Character
     public bool isDead;
     public GameManager.CriticalState criticalState = GameManager.CriticalState.None;
     public GameManager.FambleState fambleState = GameManager.FambleState.None;
-    public Weapon[] weapons = new Weapon[10];
-    public Skill[] skills = new Skill[10];
+    public List<NewSkill> skills = new List<NewSkill>();
     public GameManager.CharacterKind kind;
 
-    int i;
-
-    public Character(int id,string name, int hp, int dex, string imagePath, bool isDead, Weapon[] weapons, Skill[] skills, GameManager.CharacterKind kind)
+    public NewCharacter(int id, string name, int hp, int dex, string imagePath, NewSkill[] skill, GameManager.CharacterKind kind)
     {
         this.id = id;
         this.name = name;
@@ -23,17 +21,11 @@ public class Character
         maxHP = hp;
         this.dex = dex;
         this.imagePath = imagePath;
-        this.isDead = isDead;
-        for (i = 0; i < weapons.Length; i++)
-        {
-            this.weapons[i] = weapons[i];
-        }
-        for (i = 0;i < skills.Length; i++)
-        {
-            this.skills = skills;
-        }
-
-        this.skills = skills;
+        this.isDead = true;
         this.kind = kind;
+        for(int i = 0; i < skill.Length; i++)
+        {
+            this.skills.Add(skill[i]);
+        }
     }
 }

@@ -1,16 +1,21 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 using UnityEngine.UI;
 
 public class TitleSceneManager : MonoBehaviour
 {
-    private int i;
-    public static PlayerCharacter _player;
-    [SerializeField] private ReadJson _readJson;
+    //アクセス修飾子の後にstaticでグローバル化
+    public PlayerCharacter _playerJson;
+    public NewSkill[] _skills = new NewSkill[50];
+    public static NewCharacter _player;
+
+[SerializeField] private ReadJson _readJson;
     [SerializeField] private GameObject _endGamePanel;
     [SerializeField] private GameObject _inputJson;
     [SerializeField] private GameObject _buttonStart;
+    private string[] commands = new string[64];
 
     //念のため、最初に見せないものを非表示にするよう記述
     private void Start()
@@ -18,18 +23,70 @@ public class TitleSceneManager : MonoBehaviour
         _endGamePanel.SetActive(false);
     }
 
-    //Jsonクラスを作成してグローバル変数に保持、ゲーム開始。
+    //プレイヤーを作成してゲーム開始。
     public void GameStart()
     {
-        string _jsonText = _inputJson.GetComponent<TMP_InputField>().text;
-        _player = _readJson.ReadJsonFile(_jsonText);
+        //////////////////
+        //JSONの読み込み//
+        //////////////////
+        string _jsonText = _inputJson.GetComponent<TMP_InputField>().text.Replace("\"params\":", "\"param\":");
+        _playerJson = _readJson.ReadJsonFile(_jsonText);
+        Debug.Log("JSONの読み込み完了");
+        ///////////////////
+        //NewSkillsの作成//
+        ///////////////////
+        for (int i = 0;i < commands.Length;i++)
+        {
+            commands = _playerJson.data.commands.Split('\n');
+        }
+        NewSkill dump_newskill;
+        string marker = "CC<=";
+        string dump_text;
+        int startIndex;
+        int endIndex;
+        int index = 0;
+        for (int i = 0; i < commands.Length -12; i++)
+        {
+            if (i == 1 || (2 < i && 50 < i) ) 
+            {
+                startIndex = commands[i].IndexOf(marker);
+                endIndex = commands[i].IndexOf(" 【");
 
-        //consoleで情報確認
-        //Debug.LogFormat("--以下、各種確認を行います。");
-        //Debug.LogFormat("プレイヤーネーム：{0}", _player.data.name);
-        //Debug.LogFormat("commands：{0}", _player.data.commands);
-        SceneManager.LoadScene("Battle");
+                if (startIndex != -1 && endIndex != -1)
+                {
+                    startIndex += marker.Length;
+                    dump_text = commands[i].Substring(startIndex, endIndex - startIndex);
+                }
+                else
+                {//エラー
+                    Debug.LogError("NewSkillの作成に失敗しました！");
+                    Debug.LogErrorFormat("i = {0}\ncommand[{1}] = {2}", i, i, commands[i]);
+                    return;
+                }
+                Debug.LogFormat("i = {0}を作成します。", i);
+                Debug.LogFormat("dump_text = {0}", dump_text);
+                dump_newskill = new NewSkill(commands[i], int.Parse(dump_text));
+                _skills[index] = dump_newskill;
+                index++;
+            } else 
+            {
+                
+            }
+            
+        }
+        //////////////////////
+        //NewCharacterの作成//
+        //////////////////////
+        _player = new NewCharacter(0, _playerJson.data.name, _playerJson.data.status[0].value, int.Parse(_playerJson.data.param[3].value), _playerJson.data.iconUrl, _skills, GameManager.CharacterKind.Player);
+        StartCoroutine("AddAtk");
+        
         Debug.Log("バトルシーンへ遷移");
+        //SceneManager.LoadScene("Battle");
+    }
+    //攻撃方法に関して記載する。
+    private IEnumerator AddAtk()
+    {
+        yield break;
     }
 
     //ゲーム終了の確認画面を出す。

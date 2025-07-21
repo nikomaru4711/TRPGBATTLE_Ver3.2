@@ -102,8 +102,8 @@ public class GameManager : MonoBehaviour
         //タイトルでの入力データのインポート
         ImportFromTitle(ref data);
         //敵の元データの作成
-        _weapon2[0] = new Weapon("殴る", "こぶし", 80, 1, 3, false, Move.Panch);
-        _weapon2[1] = new Weapon("ハンマーで攻撃", "ハンマー", 65, 1, 8, false, Move.Hunmer);
+        _weapon2[0] = new Weapon("殴る", "こぶし", 80, 1, 3, Move.Panch);
+        _weapon2[1] = new Weapon("ハンマーで攻撃", "ハンマー", 65, 1, 8, Move.Hunmer);
         _skill2[0] = new Skill("修復", "応急手当", 30, Move.FirstAid);
         _skill2[1] = new Skill("避ける" , "回避", 25, Move.Dodge);
 

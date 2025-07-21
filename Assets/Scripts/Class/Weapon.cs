@@ -3,22 +3,20 @@ using UnityEngine;
 public class Weapon
 {
     public string actionName;
-    public string name;
+    public string name;//
     public int successNum;
     public int diceNum;
     public int damageNum;
-    public bool continuousDamage;
     public bool avoidable = true;
     public AudioManager.Move soundType;
 
-    public Weapon(string actionName, string name, int successNum, int diceNum, int damageNum, bool countinuousDamage, AudioManager.Move soundType)
+    public Weapon(string actionName, string name, int successNum, int diceNum, int damageNum, AudioManager.Move soundType)
     {
         this.actionName = actionName;
         this.name = name;
         this.successNum = successNum;
         this.diceNum = diceNum;
         this.damageNum = damageNum;
-        this.continuousDamage = countinuousDamage;
         this.soundType = soundType;
     }
 }
@@ -39,7 +37,7 @@ public class Weapon
 
 public class ThrowTorch : Weapon
 {
-    public ThrowTorch(string actionName, string name, int successNum, int diceNum, int damageNum, bool countinuousDamage, AudioManager.Move soundType) : base(actionName, name, successNum, diceNum, damageNum, countinuousDamage, soundType)
+    public ThrowTorch(string actionName, string name, int successNum, int diceNum, int damageNum, AudioManager.Move soundType) : base(actionName, name, successNum, diceNum, damageNum, soundType)
     {
 
     }
