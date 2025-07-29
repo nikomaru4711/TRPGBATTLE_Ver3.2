@@ -11,9 +11,10 @@ public class NewCharacter
     public GameManager.CriticalState criticalState = GameManager.CriticalState.None;
     public GameManager.FambleState fambleState = GameManager.FambleState.None;
     public List<NewSkill> skills = new List<NewSkill>();
+    public List<Weapon> weapons = new List<Weapon>();
     public GameManager.CharacterKind kind;
 
-    public NewCharacter(int id, string name, int hp, int dex, string imagePath, NewSkill[] skill, GameManager.CharacterKind kind)
+    public NewCharacter(int id, string name, int hp, int dex, string imagePath, GameManager.CharacterKind kind)
     {
         this.id = id;
         this.name = name;
@@ -23,9 +24,5 @@ public class NewCharacter
         this.imagePath = imagePath;
         this.isDead = true;
         this.kind = kind;
-        for(int i = 0; i < skill.Length; i++)
-        {
-            this.skills.Add(skill[i]);
-        }
     }
 }

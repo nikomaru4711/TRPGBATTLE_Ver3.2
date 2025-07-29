@@ -15,7 +15,6 @@ public class TitleSceneManager : MonoBehaviour
     }
     //アクセス修飾子の後にstaticでグローバル化
     public PlayerCharacter _playerJson;
-    public NewSkill[] _skills = new NewSkill[50];
     public static NewCharacter _player;
 
 [SerializeField] private ReadJson _readJson;
@@ -26,6 +25,7 @@ public class TitleSceneManager : MonoBehaviour
     [SerializeField] private GameObject _inputJson;
     [SerializeField] private GameObject _buttonStart;
     [SerializeField] private GameObject _validateErrorPanel;
+    [SerializeField] private GameObject _inputErrorPanel;
     [SerializeField] private GameObject _methodPref;
     [SerializeField] private GameObject _registAtk;
     [SerializeField] private GameObject _atkScrollView;
@@ -33,17 +33,27 @@ public class TitleSceneManager : MonoBehaviour
     private GameObject _dump;
     private List<GameObject> _atkMethodList = new List<GameObject>();
     private List<string> _optionList = new List<string>();
+    private List<string> _atkList = new List<string>();
     private int _atkCount = 0;
     private string[] commands = new string[64];
     private TMP_Dropdown _dropdown;
     private State _state;
+    
 
     //念のため、最初に見せないものを非表示にするよう記述
     private void Start()
     {
         _endGamePanel.SetActive(false);
+        _atkList.Add("こぶしで殴る");
+        _atkList.Add("刃物で切りかかる");
+        _atkList.Add("物を投げる");
     }
 
+    private string _dumpText;
+    private string _dumpText_dp1;
+    private string _dumpText_dp2;
+    private int _dumpInt;
+    private string[] _dumpString_dice = new string[2];
     //プレイヤーを作成してゲーム開始。
     public void GameStart()
     {
@@ -62,11 +72,15 @@ public class TitleSceneManager : MonoBehaviour
                 }
                 catch (System.Exception e)
                 {
-                    Debug.Log("JSONの読み込みに失敗");
+                    Debug.LogError("JSONの読み込みに失敗");
                     Debug.Log(e.ToString());
                     ValidateErrorPanel(true);
                     return;
                 }
+                //////////////////////
+                //NewCharacterの作成//
+                //////////////////////
+                _player = new NewCharacter(0, _playerJson.data.name, _playerJson.data.status[0].value, int.Parse(_playerJson.data.param[3].value), _playerJson.data.iconUrl, GameManager.CharacterKind.Player);
                 ///////////////////
                 //NewSkillsの作成//
                 ///////////////////
@@ -74,7 +88,6 @@ public class TitleSceneManager : MonoBehaviour
                 {
                     commands = _playerJson.data.commands.Split('\n');
                 }
-                NewSkill dump_newskill;
                 string marker = "CC<=";
                 string dump_text;
                 int startIndex;
@@ -100,15 +113,12 @@ public class TitleSceneManager : MonoBehaviour
                         }
                         Debug.LogFormat("i = {0}を作成します。", i);
                         Debug.LogFormat("dump_text = {0}", dump_text);
-                        dump_newskill = new NewSkill(commands[i], int.Parse(dump_text));
-                        _skills[index] = dump_newskill;
+                        Debug.LogFormat("commands[{0}] = {1}", i, commands[i]);
+                        _player.skills.Add(new NewSkill(commands[i], int.Parse(dump_text)));
                         index++;
                     }
                 }
-                //////////////////////
-                //NewCharacterの作成//
-                //////////////////////
-                _player = new NewCharacter(0, _playerJson.data.name, _playerJson.data.status[0].value, int.Parse(_playerJson.data.param[3].value), _playerJson.data.iconUrl, _skills, GameManager.CharacterKind.Player);
+                
                 ///////////////////////
                 //１．オプション追加 //
                 ///////////////////////
@@ -123,12 +133,49 @@ public class TitleSceneManager : MonoBehaviour
                 _state = State.phase2;
                 break;
             case State.phase2:
+                foreach(GameObject obj in _atkMethodList)
+                {
+                    try
+                    {
+                        ////////////////////
+                        //各要素の取り出し//
+                        ////////////////////
+                        _dumpText = obj.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_InputField>().text;
+                        _dumpInt = obj.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Dropdown>().value;
+                        _dumpText_dp1 = _optionList[_dumpInt];
+                        _dumpInt = int.Parse(obj.transform.GetChild(2).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_InputField>().text);
+                        _dumpString_dice = obj.transform.GetChild(2).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_InputField>().text.Split('d');
+                        _dumpInt = obj.transform.GetChild(3).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Dropdown>().value;
+                        _dumpText_dp2 = _atkList[_dumpInt];
+                    }
+                    catch(System.Exception e)
+                    {
+                        Debug.LogError("エラー。入力ミス？");
+                        Debug.Log(e.ToString());
+                        InputErrorPanel(true);
+                        return;
+                    }
+                    ////////////////
+                    //Weaponの作成//
+                    ////////////////
+                    _dumpInt = _player.skills.FindIndex(skill => skill.diceText == _dumpText_dp1);
+                    switch (_dumpText_dp2)
+                    {
+                        case"こぶしで殴る":
+                            _player.weapons.Add(new Weapon(_dumpText, _dumpText_dp1, _player.skills[_dumpInt].successNum, int.Parse(_dumpString_dice[0]), int.Parse(_dumpString_dice[1]), AudioManager.Move.Panch));
+                            break;
+                        case"刃物で切りかかる":
+                            _player.weapons.Add(new Weapon(_dumpText, _dumpText_dp1, _player.skills[_dumpInt].successNum, int.Parse(_dumpString_dice[0]), int.Parse(_dumpString_dice[1]), AudioManager.Move.Knife));
+                            break;
+                        case "物を投げる":
+                            _player.weapons.Add(new Weapon(_dumpText, _dumpText_dp1, _player.skills[_dumpInt].successNum, int.Parse(_dumpString_dice[0]), int.Parse(_dumpString_dice[1]), AudioManager.Move.Throw));
+                            break;
+                    }
+                }
+                Debug.Log("シーン遷移します。");
+                //SceneManager.LoadScene("Battle");
                 break;
         }
-
-        
-
-
     }
 
     public void AddMethod()
@@ -190,6 +237,20 @@ public class TitleSceneManager : MonoBehaviour
         _buttonStart.GetComponent<Button>().interactable = !index;
         _specialThanks.SetActive(!index);
         _validateErrorPanel.SetActive(index);
+    }
+
+    public void InputErrorPanel(bool index)
+    {
+        foreach(GameObject obj in _atkMethodList)
+        {
+            obj.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_InputField>().interactable = !index;
+            obj.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Dropdown>().interactable= !index;
+            obj.transform.GetChild(2).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_InputField>().interactable = !index;
+            obj.transform.GetChild(2).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_InputField>().interactable = !index;
+            obj.transform.GetChild(3).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Dropdown>().interactable = !index;
+        }
+        _buttonStart.GetComponent<Button>().interactable = !index;
+        _inputErrorPanel.SetActive(index);
     }
 
     //ゲーム終了の確認画面を出す。
