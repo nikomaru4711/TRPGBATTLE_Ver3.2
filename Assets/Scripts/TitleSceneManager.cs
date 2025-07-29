@@ -3,8 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
-using System;
-[System.Serializable]
+using UniRx;
 public class TitleSceneManager : MonoBehaviour
 {
     //アクセス修飾子の後にstaticでグローバル化
@@ -13,6 +12,9 @@ public class TitleSceneManager : MonoBehaviour
     public static NewCharacter _player;
 
 [SerializeField] private ReadJson _readJson;
+    [SerializeField] private GameObject _textTitle;
+    [SerializeField] private GameObject _textDetail;
+    [SerializeField] private GameObject _specialThanks;
     [SerializeField] private GameObject _endGamePanel;
     [SerializeField] private GameObject _inputJson;
     [SerializeField] private GameObject _buttonStart;
@@ -93,15 +95,29 @@ public class TitleSceneManager : MonoBehaviour
         //NewCharacterの作成//
         //////////////////////
         _player = new NewCharacter(0, _playerJson.data.name, _playerJson.data.status[0].value, int.Parse(_playerJson.data.param[3].value), _playerJson.data.iconUrl, _skills, GameManager.CharacterKind.Player);
-        StartCoroutine("AddAtk");
+        //////////////////
+        //攻撃方法の記入//
+        //////////////////
+        //IEnumerator Atk = AddAtk();
+
+        Observable.FromCoroutine(AddAtk)
+            .Subscribe(_ =>
+            {
+                Debug.Log("バトルシーンへ遷移");
+                //SceneManager.LoadScene("Battle");
+            }).AddTo(this);
+
         
-        Debug.Log("バトルシーンへ遷移");
-        //SceneManager.LoadScene("Battle");
     }
     //攻撃方法に関して記載する。
     private IEnumerator AddAtk()
     {
-        yield break;
+        _textTitle.SetActive(false);
+        _textDetail.SetActive(false);
+        _inputJson.SetActive(false);
+        Debug.Log("２秒待ち");
+        yield return new WaitForSeconds(2.0f);
+        Debug.Log("完了！");
     }
 
     //入力エラーの「分かった」を押したとき
@@ -109,6 +125,7 @@ public class TitleSceneManager : MonoBehaviour
     {
         _inputJson.GetComponent<TMP_InputField>().interactable = !index;
         _buttonStart.GetComponent<Button>().interactable = !index;
+        _specialThanks.SetActive(!index);
         _validateErrorPanel.SetActive(index);
     }
 
