@@ -13,8 +13,6 @@ public class Character
     public Skill[] skills = new Skill[10];
     public GameManager.CharacterKind kind;
 
-    int i;
-
     public Character(int id,string name, int hp, int dex, string imagePath, bool isDead, Weapon[] weapons, Skill[] skills, GameManager.CharacterKind kind)
     {
         this.id = id;
@@ -24,11 +22,11 @@ public class Character
         this.dex = dex;
         this.imagePath = imagePath;
         this.isDead = isDead;
-        for (i = 0; i < weapons.Length; i++)
+        for (int i = 0; i < weapons.Length; i++)
         {
             this.weapons[i] = weapons[i];
         }
-        for (i = 0;i < skills.Length; i++)
+        for (int i = 0;i < skills.Length; i++)
         {
             this.skills = skills;
         }

@@ -3,7 +3,7 @@ using UnityEngine;
 public class Weapon
 {
     public string actionName;
-    public string name;//
+    public string name;
     public int successNum;
     public int diceNum;
     public int damageNum;
