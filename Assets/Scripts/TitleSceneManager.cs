@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
-
+using System;
+[System.Serializable]
 public class TitleSceneManager : MonoBehaviour
 {
     //アクセス修飾子の後にstaticでグローバル化
@@ -15,6 +16,7 @@ public class TitleSceneManager : MonoBehaviour
     [SerializeField] private GameObject _endGamePanel;
     [SerializeField] private GameObject _inputJson;
     [SerializeField] private GameObject _buttonStart;
+    [SerializeField] private GameObject _validateErrorPanel;
     private string[] commands = new string[64];
 
     //念のため、最初に見せないものを非表示にするよう記述
@@ -29,9 +31,22 @@ public class TitleSceneManager : MonoBehaviour
         //////////////////
         //JSONの読み込み//
         //////////////////
-        string _jsonText = _inputJson.GetComponent<TMP_InputField>().text.Replace("\"params\":", "\"param\":");
-        _playerJson = _readJson.ReadJsonFile(_jsonText);
-        Debug.Log("JSONの読み込み完了");
+        try
+        {
+            string _jsonText = _inputJson.GetComponent<TMP_InputField>().text.Replace("\"params\":", "\"param\":");
+            _playerJson = _readJson.ReadJsonFile(_jsonText);
+            if (_playerJson == null){ return; }
+            Debug.Log("JSONの読み込み完了");
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("JSONの読み込みに失敗");
+            Debug.Log(e.ToString());
+            ValidateErrorPanel(true);
+            return;
+        }
+
+
         ///////////////////
         //NewSkillsの作成//
         ///////////////////
@@ -87,6 +102,14 @@ public class TitleSceneManager : MonoBehaviour
     private IEnumerator AddAtk()
     {
         yield break;
+    }
+
+    //入力エラーの「分かった」を押したとき
+    public void ValidateErrorPanel(bool index)
+    {
+        _inputJson.GetComponent<TMP_InputField>().interactable = !index;
+        _buttonStart.GetComponent<Button>().interactable = !index;
+        _validateErrorPanel.SetActive(index);
     }
 
     //ゲーム終了の確認画面を出す。

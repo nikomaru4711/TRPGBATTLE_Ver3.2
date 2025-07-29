@@ -1,0 +1,8 @@
+{
+    "kind":"character",
+    "data":{
+        "name":"守　惑 (しゅ　よう)",
+        "initiative":60,"externalUrl":"https://iachara.com/view/12034240",
+        "iconUrl":"https://image.iaproject.app/765d2515-1cbe-413c-81fd-681f949b0053",
+        "commands":"1d100<={SAN} 【正気度ロール】\nCC<=55 【アイデア】\nCC<={幸運} 【幸運】\nCC<=100 【知識】\nCC<=33 【目星】\nCC<=33 【聞き耳】\nCC<=85 【図書館】\nCC<=50 【回避】\nCC<=52 【近接戦闘】\nCC<=15 【信用】\nCC<=80 【英語】\nCC<=95 【オカルト】\nCC<=125 【心理学】\nCC<=55 【歴史】\n1d3+1D4 【ダメージ判定】\n1d4+1D4 【ダメージ判定】\n1d6+1D4 【ダメージ判定】\nCC<={STR}　【STR】\nCC<={CON}　【CON】\nCC<={POW}　【POW】\nCC<={DEX}　【DEX】\nCC<={APP}　【APP】\nCC<={SIZ}　【SIZ】\nCC<={INT}　【INT】\nCC<={EDU}　【EDU】\n",
+        "status":[{"label":"HP","value":14,"max":14},{"label":"MP","value":11,"max":11},{"label":"SAN","value":61,"max":61},{"label":"幸運","value":55,"max":55}],"params":[{"label":"STR","value":"50"},{"label":"CON","value":"60"},{"label":"POW","value":"55"},{"label":"DEX","value":"60"},{"label":"APP","value":"85"},{"label":"SIZ","value":"75"},{"label":"INT","value":"55"},{"label":"EDU","value":"95"}]}}
