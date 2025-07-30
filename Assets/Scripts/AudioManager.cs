@@ -39,6 +39,7 @@ public class AudioManager : MonoBehaviour
 
     public enum Move
     {
+        None,
         Panch,
         Knife,
         Throw, 
@@ -146,6 +147,8 @@ public class AudioManager : MonoBehaviour
                 {
                     _audioSource.PlayOneShot(_dodged2);
                 }
+                break;
+            default:
                 break;
         }
     }

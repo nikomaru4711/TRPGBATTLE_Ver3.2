@@ -15,7 +15,7 @@ public class TitleSceneManager : MonoBehaviour
     }
     //アクセス修飾子の後にstaticでグローバル化
     public PlayerCharacter _playerJson;
-    public static NewCharacter _player;
+    public static Character _player;
 
 [SerializeField] private ReadJson _readJson;
     [SerializeField] private GameObject _textTitle;
@@ -80,7 +80,7 @@ public class TitleSceneManager : MonoBehaviour
                 //////////////////////
                 //NewCharacterの作成//
                 //////////////////////
-                _player = new NewCharacter(0, _playerJson.data.name, _playerJson.data.status[0].value, int.Parse(_playerJson.data.param[3].value), _playerJson.data.iconUrl, GameManager.CharacterKind.Player);
+                _player = new Character(0, _playerJson.data.name, _playerJson.data.status[0].value, int.Parse(_playerJson.data.param[3].value), _playerJson.data.iconUrl, GameManager.CharacterKind.Player);
                 ///////////////////
                 //NewSkillsの作成//
                 ///////////////////
@@ -95,7 +95,7 @@ public class TitleSceneManager : MonoBehaviour
                 int index = 0;
                 for (int i = 0; i < commands.Length - 12; i++)
                 {
-                    if (i == 1 || (2 < i && 50 < i))
+                    if (i == 1 || (2 < i && i < 50))
                     {
                         startIndex = commands[i].IndexOf(marker);
                         endIndex = commands[i].IndexOf(" 【");
@@ -114,7 +114,7 @@ public class TitleSceneManager : MonoBehaviour
                         Debug.LogFormat("i = {0}を作成します。", i);
                         Debug.LogFormat("dump_text = {0}", dump_text);
                         Debug.LogFormat("commands[{0}] = {1}", i, commands[i]);
-                        _player.skills.Add(new NewSkill(commands[i], int.Parse(dump_text)));
+                        _player.skills.Add(new Skill("",commands[i], int.Parse(dump_text),AudioManager.Move.None));
                         index++;
                     }
                 }
@@ -143,12 +143,11 @@ public class TitleSceneManager : MonoBehaviour
                         _dumpText = obj.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_InputField>().text;
                         _dumpInt = obj.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Dropdown>().value;
                         _dumpText_dp1 = _optionList[_dumpInt];
-                        _dumpInt = int.Parse(obj.transform.GetChild(2).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_InputField>().text);
                         _dumpString_dice = obj.transform.GetChild(2).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_InputField>().text.Split('d');
                         _dumpInt = obj.transform.GetChild(3).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Dropdown>().value;
                         _dumpText_dp2 = _atkList[_dumpInt];
                     }
-                    catch(System.Exception e)
+                    catch (System.Exception e)
                     {
                         Debug.LogError("エラー。入力ミス？");
                         Debug.Log(e.ToString());
@@ -159,6 +158,7 @@ public class TitleSceneManager : MonoBehaviour
                     //Weaponの作成//
                     ////////////////
                     _dumpInt = _player.skills.FindIndex(skill => skill.diceText == _dumpText_dp1);
+                    Debug.LogErrorFormat("Indexが見つからない。探索：skill.diceText = {0}\n探索結果：index = {1}", _dumpText_dp1,_dumpInt);
                     switch (_dumpText_dp2)
                     {
                         case"こぶしで殴る":
@@ -173,7 +173,7 @@ public class TitleSceneManager : MonoBehaviour
                     }
                 }
                 Debug.Log("シーン遷移します。");
-                //SceneManager.LoadScene("Battle");
+                SceneManager.LoadScene("Battle");
                 break;
         }
     }

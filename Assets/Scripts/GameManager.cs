@@ -101,15 +101,12 @@ public class GameManager : MonoBehaviour
     {
         //タイトルでの入力データのインポート
         ImportFromTitle(ref data);
-        //敵の元データの作成
-        _weapon2[0] = new Weapon("殴る", "こぶし", 80, 1, 3, Move.Panch);
-        _weapon2[1] = new Weapon("ハンマーで攻撃", "ハンマー", 65, 1, 8, Move.Hunmer);
-        _skill2[0] = new Skill("修復", "応急手当", 30, Move.FirstAid);
-        _skill2[1] = new Skill("避ける" , "回避", 25, Move.Dodge);
+        
 
 
         //プレイヤーの作成
         //_player1 = new Character(1, "探索者", TitleSceneManager._playerStatus[0], TitleSceneManager._playerStatus[1], null, true, _weapon1, _skill1, CharacterKind.Player);
+        _player1 = TitleSceneManager._player;
         SetCharacterAray(_player1);
         //プレイヤーの技能のUIButton生成
         _uiManager.CreateIcon(_player1);
@@ -123,7 +120,12 @@ public class GameManager : MonoBehaviour
         }
         //ここで個別Panelとか作れたら複数PCいけるのになぁ（願望）
         //敵の作成
-        _enemy1 = new Character(2, "スケルトン", 14, 13, "Enemy_Icon", true, _weapon2, _skill2, CharacterKind.Enemy);
+        _enemy1 = new Character(2, "スケルトン", 14, 13, "Enemy_Icon", CharacterKind.Enemy);
+        //敵の元データの作成
+        _enemy1.weapons.Add(new Weapon("殴る", "こぶし", 80, 1, 3, Move.Panch));
+        _enemy1.weapons.Add(new Weapon("ハンマーで攻撃", "ハンマー", 65, 1, 8, Move.Hunmer));
+        _enemy1.skills.Add(new Skill("修復", "CC<=30【応急手当】", 30, Move.FirstAid));
+        _enemy1.skills.Add(new Skill("避ける", "CC<=25【回避】", 25, Move.Dodge));
         SetCharacterAray(_enemy1);
         //敵のUI反映
         _uiManager.CreateIcon(_enemy1);
@@ -313,7 +315,7 @@ public class GameManager : MonoBehaviour
     //ACTボタンの行動処理はすべてここで行う。
     public IEnumerator MoveManage(Skill skill)
     {//行動処理全般をここで行う
-        Debug.LogFormat("{0}をしました！",skill.name);
+        Debug.LogFormat("{0}をしました！",skill.diceText);
         //技能ダイスを振る。成功したら次へ（この時振ったダイスのクリティカル、ファンブルチェック）
         _diceState = DiceRoll(skill.successNum, "【" + skill.name + "】", _attacker);
         yield return _diceState;
