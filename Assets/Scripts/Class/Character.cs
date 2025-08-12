@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using UnityEngine;
 
-public class Character
+public class Character : MonoBehaviour
 {
     public int id;
-    public string name;
+    public string Cname;
     public int currentHP;
     public int maxHP;
     public int dex;
@@ -23,7 +24,11 @@ public class Character
         maxHP = hp;
         this.dex = dex;
         this.imagePath = imagePath;
-        this.isDead = true;
+        this.isDead = false;
         this.kind = kind;
+    }
+    public void Damage(int damage)
+    {
+        currentHP -= damage;
     }
 }
