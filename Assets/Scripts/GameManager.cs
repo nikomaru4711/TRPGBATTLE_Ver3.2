@@ -143,6 +143,9 @@ public class GameManager : MonoBehaviour
         _characternum++;
     }
 
+    /// <summary>
+    /// Newでは不要
+    /// </summary>
     //攻撃順序の設定をする
     public void SetAttackOrder()
     {
@@ -167,6 +170,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Newでは不要
+    /// </summary>
     private void Update()
     {//戦闘ターンを管理。実際には動かさないけど手入れする場合はここでする。
         switch (_turnState)
@@ -178,6 +184,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    ///Newでは実装済み 
+    /// </summary>
     public void RoundManage()
     {
         _turn++;
@@ -199,6 +208,10 @@ public class GameManager : MonoBehaviour
         }
         
     }
+
+    /// <summary>
+    /// Newでは未実装
+    /// </summary>
     //敵の行動処理から攻撃まで。
     public IEnumerator EnemyManage()
     {
@@ -220,6 +233,9 @@ public class GameManager : MonoBehaviour
     //GetSkillIndex(Character character, string skillName)
 
 
+    /// <summary>
+    /// Newでは未実装
+    /// </summary>
     //攻撃の処理を行う。引数の代入方法を要件等
     //※引数に関して、必要なのは下記の者であるがWeapon型の関数から呼び出すので渡す方法がない。
     //→、アタッカー、ディフェンダーをGameManagerで管理して、そこから参照するのがよさそう。
@@ -312,6 +328,10 @@ public class GameManager : MonoBehaviour
         yield break;
     }
 
+
+    /// <summary>
+    /// Newでは未実装
+    /// </summary>
     //ACTボタンの行動処理はすべてここで行う。
     public IEnumerator MoveManage(Skill skill)
     {//行動処理全般をここで行う
@@ -345,6 +365,9 @@ public class GameManager : MonoBehaviour
         yield break;
     }
 
+    /// <summary>
+    /// Newでは未実装。必要性を要検討
+    /// </summary>
     //キャラクターの特定のスキルを取り出す。
     public int GetSkillIndex(Character character, string skillName)
     {
@@ -374,6 +397,10 @@ public class GameManager : MonoBehaviour
         _uiManager.CreateLog("<color=red>Error!</color>SearchingSkill Failed", UIManager.Line.Line1);
         return -1;
     }
+
+    /// <summary>
+    /// Newでは未実装。必要性を要検討
+    /// </summary>
     public int GetWeaponIndex(Character character, string weaponName)
     {
         if (character.kind == CharacterKind.Player)
@@ -401,6 +428,9 @@ public class GameManager : MonoBehaviour
         return -1;
     }
 
+    /// <summary>
+    /// Newではおそらく不要
+    /// </summary>
     //誰が攻撃をするのかを決める。
     public void ChangeTurn()
     {
@@ -430,12 +460,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Newでは不要
+    /// </summary>
     //攻撃する対象を決定する。このverではタイマンなので未設定。
     public void DecideTarget()
     {
 
     }
 
+    /// <summary>
+    /// Newでは不要
+    /// </summary>
     //Titleシーンの入力データを持ってきて代入
     private void ImportFromTitle(ref int[] data)
     {
@@ -454,6 +490,9 @@ public class GameManager : MonoBehaviour
         //_skill1[1] = new Dodge("避ける", "回避", TitleSceneManager._playerStatus[5], Move.Dodge);
     }
 
+    /// <summary>
+    /// Newでは未実装。移植で完了
+    /// </summary>
     //ダメージダイスを振って結果を返す。（ログにも書き込む）
     public IEnumerator DiceRoll(int times, int upper, int multiplier = 1)
     {
@@ -505,6 +544,9 @@ public class GameManager : MonoBehaviour
     //　　DiceRoll(2,4);
     //　→2d4 > [1,3] > 4
 
+    /// <summary>
+    /// Newでは未実装。移植で完了。
+    /// </summary>
     //100面ダイスを振ってEnumで結果を返す。（ログにも書き込む）
     public IEnumerator DiceRoll(int successupper, string skill, Character character)
     {

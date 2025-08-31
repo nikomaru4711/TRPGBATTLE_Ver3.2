@@ -42,48 +42,61 @@ public class NewGameManager : MonoBehaviour
         PlayerTurn,
         EnemyTurn,
     }
+    public enum SystemState
+    {
+        None,
+        WaitingPlayerAction,
+    }
     //スクリプトのインポート
     [SerializeField] private UIManager _uiManager;
     [SerializeField] private AudioManager _audioManager;
-    //
+    
     [System.NonSerialized] public Character _player1;
-    private List<Character> _characterDex_az = new List< Character>();
+    private List<Character> _allCharacterDex_az = new List< Character>();
     void Start()
     {
         //titleシーンからインポート
         _player1 = TitleSceneManager._player;
         _uiManager.CreateIcon(_player1);
         //敵の生成
+        ///////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////
 
+        //敵のUI反映
+
+        //プレイヤーの技能のUIButton生成
 
         //行動順（イニシアチブ）比較
-        _characterDex_az.Add(_player1);
-        _characterDex_az.Sort((a, b) => b.dex - a.dex);
+        _allCharacterDex_az.Add(_player1);
+        _allCharacterDex_az.Sort((a, b) => b.dex - a.dex);
 
-        //ターン開始
+        //ゲーム開始
     }
 
-    private int turnIndex = 0;
-    private int turn = 1;
+    private int _turnIndex = 0;
+    private int _turn = 0;
+    private int _round = 0;
     public IEnumerator System()
     {
+        //バトル
         while (isGameEnd())
         {
-            //ターン
-            //←ここに
+            //ラウンドとターンの制御
+            if (_turn == 0) { _round++; /*UIManagerにラウンド更新の依頼*/ }
+            _turn++;
+            /*UIManagerにターン更新の依頼*/
 
-            IEnumerator enumerator = Turn(_characterDex_az[turnIndex]);
+            IEnumerator enumerator = Turn(_allCharacterDex_az[_turnIndex]);
             yield return enumerator;
-            turnIndex++;
-            if(turnIndex <= _characterDex_az.Count) { turnIndex = 0; }
+            _turnIndex++;
+            if(_turnIndex <= _allCharacterDex_az.Count) { _turnIndex = 0; }
         }
-        foreach (Character character in _characterDex_az)
-        {
-            IEnumerator enumerator = Turn(_characterDex_az[turnIndex]);
-            yield return enumerator;
-            turnIndex++;
-        }
+        //バトル終了後
+        ///PLが負けたのか勝ったのかを判定
+        ///それに応じてパネルの依頼
     }
+
+    private SystemState _state = SystemState.None;
     public IEnumerator Turn(Character actCharacter)
     {
         switch (actCharacter.kind)
@@ -91,7 +104,11 @@ public class NewGameManager : MonoBehaviour
             case GameManager.CharacterKind.Player:
                 _uiManager.CreateLog("ー探索者のターンー", UIManager.Line.Line1, 45);
                 //パネル用意
+                _state = SystemState.WaitingPlayerAction;
                 //行動受け付け
+                ///変数を用意して置いて、そこに構想するものの種類を代入させる
+                ///そして、_stateをNoneにして処理続行
+                yield return new WaitUntil(() => { return _state != SystemState.WaitingPlayerAction; });
                 //処理
                 break;
             case GameManager.CharacterKind.Enemy:
@@ -104,6 +121,7 @@ public class NewGameManager : MonoBehaviour
 
         yield return null;
     }
+
     /// <summary>
     ///決着がついてるか判定
     /// </summary>
@@ -113,7 +131,7 @@ public class NewGameManager : MonoBehaviour
     {
         _isAliveP = false;
         _isAliveE = false;
-        foreach (Character character in _characterDex_az)
+        foreach (Character character in _allCharacterDex_az)
         {
             switch(character.kind)
             {
@@ -125,6 +143,16 @@ public class NewGameManager : MonoBehaviour
                     break;
             }
         }
-        if(_isAliveP && _isAliveE){ return false; }else{ return true; }
+        if(_isAliveP && _isAliveE){ return true; }else{ return false; }
+    }
+
+    public void GameOver()
+    {
+
+    }
+
+    public void GameClear()
+    {
+
     }
 }
