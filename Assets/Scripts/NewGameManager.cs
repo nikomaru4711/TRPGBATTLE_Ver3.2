@@ -52,7 +52,9 @@ public class NewGameManager : MonoBehaviour
     [SerializeField] private AudioManager _audioManager;
     
     [System.NonSerialized] public Character _player1;
-    private List<Character> _allCharacterDex_az = new List< Character>();
+    [System.NonSerialized] public List<Character> _allCharacterDex_az = new List< Character>();
+    [System.NonSerialized] public List<Character> _allPlayer = new List< Character>();
+    [System.NonSerialized] public List<Character> _allEnemy = new List< Character>();
     void Start()
     {
         //titleシーンからインポート
@@ -70,80 +72,105 @@ public class NewGameManager : MonoBehaviour
         _allCharacterDex_az.Add(_player1);
         _allCharacterDex_az.Sort((a, b) => b.dex - a.dex);
 
+        //PlayerとEnemyのリスト作成
+        foreach(Character character in _allCharacterDex_az)
+        {
+            switch (character.kind)
+            {
+                case CharacterKind.Player: _allPlayer.Add(character); break;
+                case CharacterKind.Enemy: _allEnemy.Add(character); break;
+            }
+        }
+
         //ゲーム開始
     }
 
     private int _turnIndex = 0;
     private int _turn = 0;
     private int _round = 0;
+    [System.NonSerialized] public Character _atker;
+    [System.NonSerialized] public Character _dfner;
     public IEnumerator System()
     {
         //バトル
-        while (isGameEnd())
+        while (_allEnemy.Count != 0 && _allPlayer.Count != 0)
         {
             //ラウンドとターンの制御
-            if (_turn == 0) { _round++; /*UIManagerにラウンド更新の依頼*/ }
+            if (_turn == 0) { _round++; _uiManager.CreateLog("--Round" + _round + "------------", UIManager.Line.Line1, 55); }
             _turn++;
-            /*UIManagerにターン更新の依頼*/
-
+            switch (_allCharacterDex_az[_turnIndex].kind)
+            {
+                case CharacterKind.Player: _uiManager.CreateLog("ー探索者のターンー", UIManager.Line.Line1, 45); break;
+                case CharacterKind.Enemy: _uiManager.CreateLog("ー敵のターンー", UIManager.Line.Line1, 45); break;
+            }
+            //ターンの開始
             IEnumerator enumerator = Turn(_allCharacterDex_az[_turnIndex]);
             yield return enumerator;
+            //_deferがターン終了時に死んでいたら死亡処理をする。
+            if (_dfner.currentHP <= 0) { _dfner.isDead = true; Dead(_dfner); }
             _turnIndex++;
             if(_turnIndex <= _allCharacterDex_az.Count) { _turnIndex = 0; }
         }
         //バトル終了後
-        ///PLが負けたのか勝ったのかを判定
-        ///それに応じてパネルの依頼
+        if(_allPlayer.Count != 0)
+        { _uiManager.StartCoroutine("GameOverProcces"); }
+        else
+        { _uiManager.StartCoroutine("ClearProcess"); _audioManager.EnemyDeadSound(); }
+        yield return null;
     }
 
-    private SystemState _state = SystemState.None;
+    [System.NonSerialized]public SystemState _state = SystemState.None;
     public IEnumerator Turn(Character actCharacter)
     {
+        _atker = actCharacter;
+        _dfner = SelectDFN(actCharacter.kind);
         switch (actCharacter.kind)
         {
-            case GameManager.CharacterKind.Player:
-                _uiManager.CreateLog("ー探索者のターンー", UIManager.Line.Line1, 45);
-                //パネル用意
+            case CharacterKind.Player:
+                //パネル用意依頼
                 _state = SystemState.WaitingPlayerAction;
                 //行動受け付け
                 ///変数を用意して置いて、そこに構想するものの種類を代入させる
                 ///そして、_stateをNoneにして処理続行
                 yield return new WaitUntil(() => { return _state != SystemState.WaitingPlayerAction; });
-                //処理
+                //関連パネルをすべて非表示に（ここでしなくてもよいかも）
                 break;
-            case GameManager.CharacterKind.Enemy:
-                _uiManager.CreateLog("ー敵のターンー", UIManager.Line.Line1, 45);
-                //パネル用意
+            case CharacterKind.Enemy:
+                //パネル用意依頼
                 //行動受け付け
                 //処理
                 break;
         }
-
         yield return null;
     }
-
-    /// <summary>
-    ///決着がついてるか判定
-    /// </summary>
-    private bool _isAliveP;
-    private bool _isAliveE;
-    public bool isGameEnd()
+    public Character SelectDFN(CharacterKind atkKind)
     {
-        _isAliveP = false;
-        _isAliveE = false;
-        foreach (Character character in _allCharacterDex_az)
+        int index;
+        if(_allCharacterDex_az.Count <= 2)
         {
-            switch(character.kind)
-            {
-                case GameManager.CharacterKind.Player:
-                    if (!character.isDead) { _isAliveP = true; }
-                    break;
-                case GameManager.CharacterKind.Enemy:
-                    if (!character.isDead) { _isAliveE = true; }
-                    break;
-            }
+            return _allEnemy[0];
         }
-        if(_isAliveP && _isAliveE){ return true; }else{ return false; }
+        switch (atkKind)
+        {
+            case CharacterKind.Player:
+                index = Random.Range(0, _allEnemy.Count);
+                return _allEnemy[index];
+            case CharacterKind.Enemy:
+                index = Random.Range(0, _allPlayer.Count);
+                return _allPlayer[index];
+            default: return null;
+        }
+    }
+
+    public void Dead(Character character)
+    {
+        switch (character.kind)
+        {
+            case CharacterKind.Player: _allPlayer.Remove(character); break;
+            case CharacterKind.Enemy: _allEnemy.Remove(character); break;
+        }
+        _allCharacterDex_az.Remove(character);
+        return;
     }
 
     public void GameOver()

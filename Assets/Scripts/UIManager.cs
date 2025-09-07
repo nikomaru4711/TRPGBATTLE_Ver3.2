@@ -8,8 +8,9 @@ using UnityEngine.SceneManagement;
 public class UIManager : MonoBehaviour
 {
     //スクリプトのインポート
-    [SerializeField] private GameManager _gameManager;
+    [SerializeField] private NewGameManager _gameManager;
     [SerializeField] private AudioManager _audioManager;
+    [SerializeField] private PlayerActionController _playerActionController;
 
     //代入型private
     [SerializeField] private GameObject _logContent;
@@ -175,7 +176,7 @@ public class UIManager : MonoBehaviour
         }
         button.GetComponent<Button>().onClick.AddListener(() => 
         {
-            _gameManager.StartCoroutine("AttackManage",weapon);
+            _playerActionController.StartCoroutine("AttackManage",weapon);
             IsInteractable(false);
         });
     }
@@ -199,91 +200,119 @@ public class UIManager : MonoBehaviour
 
             button.GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    _gameManager.StartCoroutine("MoveManage", skill);
+                    _playerActionController.StartCoroutine("MoveManage", skill);
                     IsInteractable(false);
                 });
         }
     }
     //updateindexにはそのままの値「+2」や「-3」などが入って送られる
-    public void UpdateCharacterHP(Character character, int updateindex)
-    {
-        int oldHP = character.currentHP;
+    //進行案：characterを渡されたらその状態を更新する。基本的にHPバーのみで、死亡判定などはGameManagerに任せる。
+    //public void UpdateCharacterHP(Character character, int updateindex)
+    //{
+        //int oldHP = character.currentHP;
 
-        //体力が最大値・最小値を超えないように。
-        character.currentHP += updateindex;
-        if (character.currentHP > character.maxHP)
-        {
-            character.currentHP = character.maxHP;
-        }
-        else if (character.currentHP <= 0)
-        {
-            character.currentHP = 0;
-        }
+        ////体力が最大値・最小値を超えないように。
+        //character.currentHP += updateindex;
+        //if (character.currentHP > character.maxHP)
+        //{
+        //    character.currentHP = character.maxHP;
+        //}
+        //else if (character.currentHP <= 0)
+        //{
+        //    character.currentHP = 0;
+        //}
 
-        Debug.LogFormat("受け取ったindex: {0}", updateindex);
-        //キャラクターに対応するUIの取得
-        _character = GameObject.Find("Character_" + character.id);
-        //Logにダメージの出力
-        CreateLog("【" + character.name + "】HP : " +  oldHP + "→" + character.currentHP , Line.Line1);
+        //Debug.LogFormat("受け取ったindex: {0}", updateindex);
+        ////キャラクターに対応するUIの取得
+        //_character = GameObject.Find("Character_" + character.id);
+        ////Logにダメージの出力
+        //CreateLog("【" + character.name + "】HP : " +  oldHP + "→" + character.currentHP , Line.Line1);
 
+        //////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////
         //ゲージの更新
         //死んだか判定
-        if (character.currentHP == 0)
-        {
-            _character.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().SetText("  HP      <color=red>0</color>" + "/" + character.maxHP);
-            _character.transform.GetChild(0).gameObject.GetComponent<Image>().fillAmount = ((float)character.currentHP / (float)character.maxHP);
-            //敵だったら
-            if (character.kind == GameManager.CharacterKind.Enemy)
-            {
-                _character = GameObject.Find("Enemy_" + character.id);
-                _character.GetComponent<Image>().sprite = Resources.Load<Sprite>("Enemy_Dead");
-                character.isDead = false;
-                DeadProcess(character);
-                //音
-                Debug.Log("敵が死んだわ ggwp");
-                //ゲームクリア
-            }
-            else if(character.kind == GameManager.CharacterKind.Player)//Playerだったら
-            {
-                //暗転
-                //ゲームオーバーの表記
-                //音
-                Debug.Log("Playerが死んだわ ggwp");
-                character.isDead = false;
-                DeadProcess(character);
-            }
-        } else //まだ生き残ってたら
-        {
-            _character.transform.GetChild(0).gameObject.GetComponent<Image>().fillAmount = ((float)character.currentHP / (float)character.maxHP);
-            if (character.currentHP / character.maxHP <= 0.8)
-            {
-                _character.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().SetText("  HP      <color=red>" + character.currentHP + "</color>/" + character.maxHP);
-            } else
-            {
-                _character.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().SetText("  HP      " + character.currentHP + "/" + character.maxHP);
-            }
+        //if (character.currentHP == 0)
+        //{
+        //    _character.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().SetText("  HP      <color=red>0</color>" + "/" + character.maxHP);
+        //    _character.transform.GetChild(0).gameObject.GetComponent<Image>().fillAmount = ((float)character.currentHP / (float)character.maxHP);
+        //    //敵だったら
+        //    switch (character.kind)
+        //    {
+        //        case NewGameManager.CharacterKind.Player:
+        //            //暗転
+        //            //ゲームオーバーの表記
+        //            //音
+        //            Debug.Log("Playerが死んだわ ggwp");
+        //            character.isDead = false;
+        //            DeadProcess(character);
+        //            break;
+        //        case NewGameManager.CharacterKind.Enemy:
+        //            _character = GameObject.Find("Enemy_" + character.id);
+        //            _character.GetComponent<Image>().sprite = Resources.Load<Sprite>("Enemy_Dead");
+        //            character.isDead = false;
+        //            DeadProcess(character);
+        //            //音
+        //            Debug.Log("敵が死んだわ ggwp");
+        //            //ゲームクリア
+        //            break;
+        //    }
+
+        //} else //まだ生き残ってたら
+        //{
+        //    _character.transform.GetChild(0).gameObject.GetComponent<Image>().fillAmount = ((float)character.currentHP / (float)character.maxHP);
+        //    if (character.currentHP / character.maxHP <= 0.8)
+        //    {
+        //        _character.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().SetText("  HP      <color=red>" + character.currentHP + "</color>/" + character.maxHP);
+        //    } else
+        //    {
+        //        _character.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().SetText("  HP      " + character.currentHP + "/" + character.maxHP);
+        //    }
                 
-            Debug.Log("生き残ってんじゃん nc");
-        }
+        //    Debug.Log("生き残ってんじゃん nc");
+        //}
+        //////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////
+
+    //}
+
+    public void UpdateCharacterUI(Character character)
+    {
+        //Imageの更新
+        _character.transform.GetChild(0).gameObject.GetComponent<Image>().fillAmount = ((float)character.currentHP / (float)character.maxHP);
+        //背景色の調整
+        if (character.currentHP / character.maxHP <= 0.8)
+        { _character.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().SetText("  HP      <color=red>" + character.currentHP + "</color>/" + character.maxHP); }
+        else
+        { _character.transform.GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().SetText("  HP      " + character.currentHP + "/" + character.maxHP); }
     }
 
+
+
+    //////////////////////////////////////////////////////////////////////////////////
     //キャラクターの死亡処理
-    public void DeadProcess(Character character)
-    {
-        //Playerだったら
-        if(character.kind == GameManager.CharacterKind.Player)
-        {
-            //ゲームオーバー処理
-            StartCoroutine("GameOverProcces");
-        } 
-        else
-        {//敵だったら
-            //ゲームクリア処理
-            //  今回は敵が一人しかいないので場に出てる敵の数を調べる処理は書かない。
-            _audioManager.EnemyDeadSound();
-            StartCoroutine("ClearProcess");
-        }
-    }
+    //////////////////////////////////////////////////////////////////////////////////
+    //public void DeadProcess(Character character)
+    //{
+    //    //Playerだったら
+    //    if(character.kind == NewGameManager.CharacterKind.Player)
+    //    {
+    //        //ゲームオーバー処理
+    //        StartCoroutine("GameOverProcces");
+    //    } 
+    //    else
+    //    {//敵だったら
+    //        //ゲームクリア処理
+    //        //  今回は敵が一人しかいないので場に出てる敵の数を調べる処理は書かない。
+    //        _audioManager.EnemyDeadSound();
+    //        StartCoroutine("ClearProcess");
+    //    }
+    //}
+    //////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////
 
     public void onClickBackTitle()
     {
@@ -391,13 +420,13 @@ public class UIManager : MonoBehaviour
         GameObject.Find("Log").SetActive(false);
         GameObject.Find("Button_Fight").SetActive(false);
         GameObject.Find("Button_Act").SetActive(false);
-        for (i = 0; _gameManager._characterArray[i] != null;i++)
+        for (i = 0; _gameManager._allCharacterDex_az[i] != null;i++)
         {
-            if(_gameManager._characterArray[i].kind == GameManager.CharacterKind.Enemy)
+            if(_gameManager._allCharacterDex_az[i].kind == NewGameManager.CharacterKind.Enemy)
             {
-                GameObject.Find("Enemy_" + _gameManager._characterArray[i].id).SetActive(false);
+                GameObject.Find("Enemy_" + _gameManager._allCharacterDex_az[i].id).SetActive(false);
             }
-            GameObject.Find("Character_" + _gameManager._characterArray[i].id).SetActive(false);
+            GameObject.Find("Character_" + _gameManager._allCharacterDex_az[i].id).SetActive(false);
         }
         //音の再生
         _audioManager.ChangeBGM(AudioManager.BGMType.Clear);
