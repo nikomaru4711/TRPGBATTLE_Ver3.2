@@ -80,7 +80,7 @@ public class TitleSceneManager : MonoBehaviour
                 //////////////////////
                 //NewCharacter�̍쐬//
                 //////////////////////
-                _player = new Character(0, _playerJson.data.name, _playerJson.data.status[0].value, int.Parse(_playerJson.data.param[3].value), _playerJson.data.iconUrl, NewGameManager.CharacterKind.Player);
+                _player = new Character(0, _playerJson.data.name, _playerJson.data.status[0].value, int.Parse(_playerJson.data.param[3].value), _playerJson.data.iconUrl, GameManager.CharacterKind.Player);
                 ///////////////////
                 //NewSkills�̍쐬//
                 ///////////////////

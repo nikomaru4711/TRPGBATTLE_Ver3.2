@@ -10,13 +10,13 @@ public class Character : MonoBehaviour
     public int dex;
     public string imagePath;
     public bool isDead;
-    public NewGameManager.CriticalState criticalState = NewGameManager.CriticalState.None;
-    public NewGameManager.FambleState fambleState = NewGameManager.FambleState.None;
+    public GameManager.CriticalState criticalState = GameManager.CriticalState.None;
+    public GameManager.FambleState fambleState = GameManager.FambleState.None;
     public List<Skill> skills = new List<Skill>();
     public List<Weapon> weapons = new List<Weapon>();
-    public NewGameManager.CharacterKind kind;
+    public GameManager.CharacterKind kind;
 
-    public Character(int id, string name, int hp, int dex, string imagePath, NewGameManager.CharacterKind kind)
+    public Character(int id, string name, int hp, int dex, string imagePath, GameManager.CharacterKind kind)
     {
         this.id = id;
         this.name = name;

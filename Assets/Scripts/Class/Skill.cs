@@ -1,43 +1,21 @@
-//public class Skill
-//{
-//    public string actionName;
-//    public string name;
-//    public int successNum;
-//    public AudioManager.Move soundType;
+public class Skill
+{
+    public string diceText;//例：CC<=55 【アイデア】
+    public string actionName;//例：思いつく
+    public string name;//例：アイデア
+    public int successNum;//例：55
+    public AudioManager.Move soundType;
 
-//    public Skill(string actionName, string name, int successNum, AudioManager.Move soundType)
-//    {
-//        this.actionName = actionName;
-//        this.name = name;
-//        this.successNum = successNum;
-//        this.soundType = soundType;
-//    }
-//}
-
-////public class 名前 : Skill
-////{
-////    public 名前(string name, int successNum) : base(name, successNum)
-////    {
-
-////    }
-////    //機能名を記述
-////}
-
-
-//public class FirstAid : Skill
-//{
-//    public FirstAid(string actionName, string name, int successNum, AudioManager.Move soundType) : base(actionName, name, successNum, soundType)
-//    {
-
-//    }
-//    //HPが回復する
-//}
-
-//public class Dodge : Skill
-//{
-//    public Dodge(string actionName, string name, int successNum, AudioManager.Move soundType) : base(actionName, name, successNum, soundType)
-//    {
-
-//    }
-//    //ダイス成功で攻撃を避ける
-//}
+    public Skill(string actionName, string diceText, int successNum, AudioManager.Move soundType)
+    {
+        this.actionName = actionName;
+        this.diceText = diceText;
+        string[] parts = diceText.Split(new char[] { '【', '】' });
+        if (parts.Length >= 2)
+        {
+            name = parts[1];
+        }
+        this.successNum = successNum;
+        this.soundType = soundType;
+    }
+}

@@ -84,22 +84,22 @@ public class DiceRoller : MonoBehaviour
                 if ((int)_chooseEffect.Current == 1)
                 {
                     _uiManager.CreateLog("Ÿ‚Ì—^ƒ_ƒ[ƒW‚ª“ñ”{I", UIManager.Line.Line1);
-                    character.criticalState = NewGameManager.CriticalState.DoubleDamage;
+                    character.criticalState = GameManager.CriticalState.DoubleDamage;
                 }
                 else
                 {
                     _uiManager.CreateLog("Ÿ‚ÌUŒ‚‚Í‰ñ”ğ‚³‚ê‚È‚¢", UIManager.Line.Line1);
-                    character.criticalState = NewGameManager.CriticalState.Unavoidable;
+                    character.criticalState = GameManager.CriticalState.Unavoidable;
                 }
                 yield return new WaitForSeconds(_interval);
-                yield return NewGameManager.DiceState.Critical;
+                yield return GameManager.DiceState.Critical;
             }
             else//¬Œ÷//
             {
                 _message = "1d100<=" + successupper + skill + "\n<color=blue>(1d100<=" + successupper + ") > " + total + " > \n¬Œ÷</color>";
                 _uiManager.CreateLog(_message, UIManager.Line.Line3);
                 yield return new WaitForSeconds(_interval);
-                yield return NewGameManager.DiceState.Success;
+                yield return GameManager.DiceState.Success;
             }
         }
         else
@@ -117,23 +117,23 @@ public class DiceRoller : MonoBehaviour
                 if ((int)_chooseEffect.Current == 1)
                 {
                     _uiManager.CreateLog("Ÿ‚Ì”íƒ_ƒ[ƒW“ñ”{‚É. . .", UIManager.Line.Line1);
-                    character.fambleState = NewGameManager.FambleState.DoubleDamage;
+                    character.fambleState = GameManager.FambleState.DoubleDamage;
 
                 }
                 else
                 {
                     _uiManager.CreateLog("Ÿ‚ÌUŒ‚‚Í‰ñ”ğ•s‰Â. . .", UIManager.Line.Line1);
-                    character.fambleState = NewGameManager.FambleState.Unavoidable;
+                    character.fambleState = GameManager.FambleState.Unavoidable;
                 }
                 yield return new WaitForSeconds(_interval);
-                yield return NewGameManager.DiceState.Famble;
+                yield return GameManager.DiceState.Famble;
             }
             else//¸”s//
             {
                 _message = "1d100<=" + successupper + skill + "\n<color=red>(1d100<=" + successupper + ") > " + total + " > \n¸”s</color>";
                 _uiManager.CreateLog(_message, UIManager.Line.Line3);
                 yield return new WaitForSeconds(_interval);
-                yield return NewGameManager.DiceState.Fail;
+                yield return GameManager.DiceState.Fail;
             }
         }
     }

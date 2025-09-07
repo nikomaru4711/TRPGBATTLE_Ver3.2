@@ -5,7 +5,7 @@ using static UIManager;
 
 public class PlayerActionController : MonoBehaviour
 {
-    [SerializeField] private NewGameManager _gameManager;
+    [SerializeField] private GameManager _gameManager;
     [SerializeField] private UIManager _uiManager;
     [SerializeField] private DiceRoller _diceRoller;
     [SerializeField] private AudioManager _audioManager;
@@ -30,29 +30,29 @@ public class PlayerActionController : MonoBehaviour
         //相手のファンブルは有効か？
         switch (_gameManager._dfner.fambleState)
         {
-            case NewGameManager.FambleState.None:
+            case GameManager.FambleState.None:
                 break;
-            case NewGameManager.FambleState.Unavoidable:
+            case GameManager.FambleState.Unavoidable:
                 _isAvoidable = false;
                 break;
-            case NewGameManager.FambleState.DoubleDamage:
+            case GameManager.FambleState.DoubleDamage:
                 _damageMultiplier *= 2;
                 break;
             default:
                 _uiManager.CreateLog("<color=red>Error!</color>checking target \nCritical/Famble failed.", UIManager.Line.Line1);
                 break;
         }
-        _gameManager._dfner.fambleState = NewGameManager.FambleState.None;
+        _gameManager._dfner.fambleState = GameManager.FambleState.None;
 
         //Attacjerのクリティカル状況を確認（ダメージ二倍のみ）
         switch (_gameManager._atker.criticalState)
         {
-            case NewGameManager.CriticalState.None:
+            case GameManager.CriticalState.None:
                 break;
-            case NewGameManager.CriticalState.Unavoidable:
+            case GameManager.CriticalState.Unavoidable:
                 _isAvoidable = false;
                 break;
-            case NewGameManager.CriticalState.DoubleDamage:
+            case GameManager.CriticalState.DoubleDamage:
                 _damageMultiplier *= 2;
                 break;
             default:
@@ -64,7 +64,7 @@ public class PlayerActionController : MonoBehaviour
         _diceState = _diceRoller.DiceRoll(weapon.successNum, "【" + weapon.name + "】", _gameManager._atker);
         yield return _diceState;
         //攻撃できたか？
-        if ((NewGameManager.DiceState)_diceState.Current == NewGameManager.DiceState.Success || (NewGameManager.DiceState)_diceState.Current == NewGameManager.DiceState.Critical)
+        if ((GameManager.DiceState)_diceState.Current == GameManager.DiceState.Success || (GameManager.DiceState)_diceState.Current == GameManager.DiceState.Critical)
         {
             //クリティカルか？これもタイミングはおかしくなってるけど一旦省略。
             //（今の状態だと必ず次ターンの攻撃に影響。）
@@ -74,14 +74,14 @@ public class PlayerActionController : MonoBehaviour
             if (_isAvoidable)
             {
                 //敵は回避できる状況か？（ファンブル効果）
-                if (_gameManager._dfner.fambleState != NewGameManager.FambleState.Unavoidable)
+                if (_gameManager._dfner.fambleState != GameManager.FambleState.Unavoidable)
                 {
                     //回避のスキル情報を取り出す
                     _skill = GetSkill(_gameManager._dfner, "避ける");
                     //相手の回避ダイス
                     _avoidState = _diceRoller.DiceRoll(_skill.successNum, "【回避】", _gameManager._dfner);
                     yield return _avoidState;
-                    if ((NewGameManager.DiceState)_avoidState.Current == NewGameManager.DiceState.Success || (NewGameManager.DiceState)_avoidState.Current == NewGameManager.DiceState.Critical)
+                    if ((GameManager.DiceState)_avoidState.Current == GameManager.DiceState.Success || (GameManager.DiceState)_avoidState.Current == GameManager.DiceState.Critical)
                     { _audioManager.MoveSound(_skill.soundType); }
                     yield return new WaitForSeconds(1f);
                     //ここで回避がクリティカルの場合を追記する。今回は回避のCF同じにするので省略。
@@ -94,7 +94,7 @@ public class PlayerActionController : MonoBehaviour
             }
 
             //ダメージ計算
-            if (!weapon.avoidable || (NewGameManager.DiceState)_avoidState.Current == NewGameManager.DiceState.Fail || (NewGameManager.DiceState)_avoidState.Current == NewGameManager.DiceState.Famble)
+            if (!weapon.avoidable || (GameManager.DiceState)_avoidState.Current == GameManager.DiceState.Fail || (GameManager.DiceState)_avoidState.Current == GameManager.DiceState.Famble)
             {
                 Debug.Log("ダメージダイスを振ります");
                 _damage = _diceRoller.DiceRoll(weapon.diceNum, weapon.damageNum, _damageMultiplier);
@@ -108,14 +108,14 @@ public class PlayerActionController : MonoBehaviour
                 yield return new WaitForSeconds(1.5f);
             }
         }
-        _gameManager._state = NewGameManager.SystemState.None;
+        _gameManager._state = GameManager.SystemState.None;
         yield break;
     }
 
     public Skill GetSkill(Character character, string skillName)
     {
         Debug.LogFormat("Input：{0}", skillName);
-        if (character.kind == NewGameManager.CharacterKind.Player)
+        if (character.kind == GameManager.CharacterKind.Player)
         {
             foreach(Skill skill in character.skills)
             {
@@ -128,38 +128,39 @@ public class PlayerActionController : MonoBehaviour
 
     public IEnumerator MoveManage(Skill skill)
     {//行動処理全般をここで行う
-        Debug.LogFormat("{0}をしました！", skill.diceText);
-        //技能ダイスを振る。成功したら次へ（この時振ったダイスのクリティカル、ファンブルチェック）
-        _diceState = _diceRoller.DiceRoll(skill.successNum, "【" + skill.name + "】", _gameManager._atker);
-        yield return _diceState;
+        //Debug.LogFormat("{0}をしました！", skill.diceText);
+        ////技能ダイスを振る。成功したら次へ（この時振ったダイスのクリティカル、ファンブルチェック）
+        //_diceState = _diceRoller.DiceRoll(skill.successNum, "【" + skill.name + "】", _gameManager._atker);
+        //yield return _diceState;
 
-        //ダイスに成功したか？
-        if ((NewGameManager.DiceState)_diceState.Current == NewGameManager.DiceState.Success || (NewGameManager.DiceState)_diceState.Current == NewGameManager.DiceState.Critical)
-        {
-            ////////////////////////////////////////////////////////////////////////////////////////
-            //応急手当の場合
-            ////////////////////////////////////////////////////////////////////////////////////////
-            if (skill.name == "応急手当")
-            {
-                _num = _diceRoller.DiceRoll(1, 3);
-                yield return _num;
-                if (_gameManager._atker.currentHP == _gameManager._atker.maxHP)
-                {
-                    _uiManager.CreateLog("これ以上回復しない\n（傷がない）", UIManager.Line.Line2);
-                }
-                else
-                {
-                    _uiManager.UpdateCharacterHP(_gameManager._atker, (int)_num.Current);
-                }
-            }
-            ////////////////////////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////////////////////////
+        ////ダイスに成功したか？
+        //if ((NewGameManager.DiceState)_diceState.Current == NewGameManager.DiceState.Success || (NewGameManager.DiceState)_diceState.Current == NewGameManager.DiceState.Critical)
+        //{
+        //    ////////////////////////////////////////////////////////////////////////////////////////
+        //    //応急手当の場合
+        //    ////////////////////////////////////////////////////////////////////////////////////////
+        //    if (skill.name == "応急手当")
+        //    {
+        //        _num = _diceRoller.DiceRoll(1, 3);
+        //        yield return _num;
+        //        if (_gameManager._atker.currentHP == _gameManager._atker.maxHP)
+        //        {
+        //            _uiManager.CreateLog("これ以上回復しない\n（傷がない）", UIManager.Line.Line2);
+        //        }
+        //        else
+        //        {
+        //            _uiManager.UpdateCharacterHP(_gameManager._atker, (int)_num.Current);
+        //        }
+        //    }
+        //    ////////////////////////////////////////////////////////////////////////////////////////
+        //    ////////////////////////////////////////////////////////////////////////////////////////
+        //    ////////////////////////////////////////////////////////////////////////////////////////
 
-            _audioManager.MoveSound(skill.soundType);
-            yield return new WaitForSeconds(3.0f);
-        }
-        _gameManager._state = NewGameManager.SystemState.None;
-        yield break;
+        //    _audioManager.MoveSound(skill.soundType);
+        //    yield return new WaitForSeconds(3.0f);
+        //}
+        //_gameManager._state = NewGameManager.SystemState.None;
+        //yield break;
+        yield return null;
     }
 }

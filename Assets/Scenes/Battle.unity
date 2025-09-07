@@ -279,7 +279,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 95185032}
-  - component: {fileID: 95185036}
+  - component: {fileID: 95185039}
   - component: {fileID: 95185037}
   - component: {fileID: 95185030}
   - component: {fileID: 95185038}
@@ -305,7 +305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2f7675ea531f1144946dc061219abf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gameManager: {fileID: 95185036}
+  _gameManager: {fileID: 95185039}
   _audioManager: {fileID: 95185033}
   _playerActionController: {fileID: 95185037}
   _logContent: {fileID: 456833792}
@@ -569,20 +569,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &95185036
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 95185029}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 449e10ca842a1a34c8d7af053daffbbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiManager: {fileID: 95185030}
-  _audioManager: {fileID: 95185033}
 --- !u!114 &95185037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -595,7 +581,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1319b9ec8e1573c41a3bfc1ae18c847b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gameManager: {fileID: 95185036}
+  _gameManager: {fileID: 95185039}
   _uiManager: {fileID: 95185030}
   _diceRoller: {fileID: 95185038}
   _audioManager: {fileID: 95185033}
@@ -614,6 +600,20 @@ MonoBehaviour:
   _audioManager: {fileID: 95185033}
   _uiManager: {fileID: 95185030}
   _interval: 2
+--- !u!114 &95185039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 95185029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67edb2b38e04132428c8079f0ab7f76f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiManager: {fileID: 95185030}
+  _audioManager: {fileID: 95185033}
 --- !u!1 &115716143
 GameObject:
   m_ObjectHideFlags: 0
