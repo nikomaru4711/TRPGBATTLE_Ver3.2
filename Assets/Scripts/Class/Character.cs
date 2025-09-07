@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using UnityEngine;
 
-public class Character : MonoBehaviour
+public class Character
 {
     public int id;
     public string Cname;
@@ -19,7 +18,7 @@ public class Character : MonoBehaviour
     public Character(int id, string name, int hp, int dex, string imagePath, GameManager.CharacterKind kind)
     {
         this.id = id;
-        this.name = name;
+        this.Cname = name;
         currentHP = hp;
         maxHP = hp;
         this.dex = dex;

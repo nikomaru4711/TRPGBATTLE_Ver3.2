@@ -104,7 +104,7 @@ public class PlayerActionController : MonoBehaviour
                 _gameManager._dfner.currentHP -= (int)_damage.Current;
                 if (_gameManager._dfner.currentHP <= 0) { _gameManager._dfner.currentHP = 0; }
                 _uiManager.UpdateCharacterUI(_gameManager._dfner);
-                _uiManager.CreateLog("y" + _gameManager._dfner.name + "zHP : " + oldHP + "¨" + _gameManager._dfner.currentHP, Line.Line1);
+                _uiManager.CreateLog("y" + _gameManager._dfner.Cname + "zHP : " + oldHP + "¨" + _gameManager._dfner.currentHP, Line.Line1);
                 yield return new WaitForSeconds(1.5f);
             }
         }
