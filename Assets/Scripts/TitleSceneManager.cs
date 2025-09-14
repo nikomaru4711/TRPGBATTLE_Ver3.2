@@ -84,10 +84,14 @@ public class TitleSceneManager : MonoBehaviour
                 ///////////////////
                 //NewSkillsの作成//
                 ///////////////////
-                for (int i = 0; i < commands.Length; i++)
-                {
-                    commands = _playerJson.data.commands.Split('\n');
-                }
+                /////////////////////////////////////////////////////////////////
+                //for (int i = 0; i < commands.Length; i++)
+                //{
+                //commands = _playerJson.data.commands.Split('\n');
+                //}
+                commands = _playerJson.data.commands.Split('\n');
+                /////////////////////////////////////////////////////////////////
+
                 string marker = "CC<=";
                 string dump_text;
                 int startIndex;
@@ -158,7 +162,7 @@ public class TitleSceneManager : MonoBehaviour
                     //Weaponの作成//
                     ////////////////
                     _dumpInt = _player.skills.FindIndex(skill => skill.diceText == _dumpText_dp1);
-                    Debug.LogErrorFormat("Indexが見つからない。探索：skill.diceText = {0}\n探索結果：index = {1}", _dumpText_dp1,_dumpInt);
+                    //Debug.LogErrorFormat("Indexが見つからない。探索：skill.diceText = {0}\n探索結果：index = {1}", _dumpText_dp1,_dumpInt);
                     switch (_dumpText_dp2)
                     {
                         case"こぶしで殴る":
@@ -238,7 +242,6 @@ public class TitleSceneManager : MonoBehaviour
         _specialThanks.SetActive(!index);
         _validateErrorPanel.SetActive(index);
     }
-
     public void InputErrorPanel(bool index)
     {
         foreach(GameObject obj in _atkMethodList)
@@ -252,7 +255,6 @@ public class TitleSceneManager : MonoBehaviour
         _buttonStart.GetComponent<Button>().interactable = !index;
         _inputErrorPanel.SetActive(index);
     }
-
     //ゲーム終了の確認画面を出す。
     public void EndGamePanelView(bool index)
     {
@@ -260,10 +262,6 @@ public class TitleSceneManager : MonoBehaviour
         _buttonStart.GetComponent<Button>().interactable = !index;
         _endGamePanel.SetActive(index);
     }
-
     //ゲームプレイ終了
-    public void EndGame()
-    {
-    Application.Quit();
-    }
+    public void EndGame() { Application.Quit(); }
 }
