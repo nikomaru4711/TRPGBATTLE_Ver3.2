@@ -1,11 +1,13 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UniRx;
 using System;
+using UnityEngine.Timeline;
 public class TitleSceneManager : MonoBehaviour
 {
     public enum State
@@ -84,55 +86,61 @@ public class TitleSceneManager : MonoBehaviour
                 ///////////////////
                 //NewSkillsの作成//
                 ///////////////////
-                /////////////////////////////////////////////////////////////////
-                //for (int i = 0; i < commands.Length; i++)
-                //{
-                //commands = _playerJson.data.commands.Split('\n');
-                //}
                 commands = _playerJson.data.commands.Split('\n');
-                /////////////////////////////////////////////////////////////////
 
-                string marker = "CC<=";
+                ///luckOutput
+                ///幸運ダイスを出力：true
+                ///幸運ダイスを出力しない：false
+                ///
+                ///CCorCCB
+                ///CCB出力：true
+                ///CC出力：false
+                bool luckOutput = (_playerJson.data.status[3].label == "幸運");
+                bool CCorCCB = commands[1].Contains("CCB");
+
+                Regex regex = new Regex(@"(^$|STR|CON|POW|DEX|APP|SIZ|INT|EDU|正気度ロール|ダメージ判定)");
+                string marker;
+                if (CCorCCB) { marker = "CCB<="; } else { marker = "CC<="; }
                 string dump_text;
                 int startIndex;
                 int endIndex;
-                int index = 0;
-                for (int i = 0; i < commands.Length - 12; i++)
+                foreach (string command in commands)
                 {
-                    if (i == 1 || (2 < i && i < 50))
-                    {
-                        startIndex = commands[i].IndexOf(marker);
-                        endIndex = commands[i].IndexOf(" 【");
+                    //特定のcommandは処理しない
+                    if (regex.IsMatch(command.ToString())) { Debug.LogFormat("これは飛ばす。：{0}",command); continue; }
+                    Debug.LogFormat("OK!：{0}", command);
+                    //数値の抜き出し
+                    startIndex = command.IndexOf(marker);
+                    endIndex = command.IndexOf(" 【");
 
-                        if (startIndex != -1 && endIndex != -1)
-                        {
-                            startIndex += marker.Length;
-                            dump_text = commands[i].Substring(startIndex, endIndex - startIndex);
-                        }
-                        else
-                        {//エラー
-                            Debug.LogError("NewSkillの作成に失敗しました！");
-                            Debug.LogErrorFormat("i = {0}\ncommand[{1}] = {2}", i, i, commands[i]);
-                            return;
-                        }
-                        Debug.LogFormat("i = {0}を作成します。", i);
-                        Debug.LogFormat("dump_text = {0}", dump_text);
-                        Debug.LogFormat("commands[{0}] = {1}", i, commands[i]);
-                        _player.skills.Add(new Skill("",commands[i], int.Parse(dump_text),AudioManager.Move.None));
-                        index++;
+                    if (startIndex != -1 && endIndex != -1)
+                    {
+                        startIndex += marker.Length;
+                        dump_text = command.Substring(startIndex, endIndex - startIndex);
                     }
+                    else
+                    {//エラー
+                        Debug.LogError("NewSkillの作成に失敗しました！");
+                        Debug.LogErrorFormat("コマンド名：{0}",command);
+                        return;
+                    }
+                    if(luckOutput){ dump_text = _playerJson.data.status[3].value.ToString(); }
+                    Debug.LogFormat("dump_text = {0}", dump_text);
+                    _player.skills.Add(new Skill("テスト", command, int.Parse(dump_text), AudioManager.Move.None));
+
                 }
-                
+
                 ///////////////////////
                 //１．オプション追加 //
                 ///////////////////////
                 PhaseChange(State.phase2);
+                _optionList.Clear();
+                Debug.Log("qwerty");
+                foreach (Skill skill in _player.skills){ Debug.LogFormat("skill.name：{0}",skill.name); _optionList.Add(skill.name); Debug.LogFormat("Add OptionList：{0}", skill.name); }
+                Debug.Log("asdfg");
                 _dropdown = _methodPref.gameObject.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Dropdown>();
-                for (int i = 0; i < commands.Length; i++)
-                {
-                    _optionList.Add(commands[i]);
-                }
                 _dropdown.ClearOptions();
+                Debug.LogFormat("optionList：{0}",_optionList);
                 _dropdown.AddOptions(_optionList);
                 _state = State.phase2;
                 break;
