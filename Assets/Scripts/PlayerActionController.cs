@@ -16,7 +16,6 @@ public class PlayerActionController : MonoBehaviour
     private IEnumerator _damage;
     private IEnumerator _avoidState;
     private IEnumerator _diceState;
-    private IEnumerator _num;
     //攻撃の処理を行う。引数の代入方法を要件等
     //※引数に関して、必要なのは下記の者であるがWeapon型の関数から呼び出すので渡す方法がない。
     //→、アタッカー、ディフェンダーをGameManagerで管理して、そこから参照するのがよさそう。
@@ -109,7 +108,7 @@ public class PlayerActionController : MonoBehaviour
             }
         }
         _gameManager._state = GameManager.SystemState.None;
-        yield break;
+        yield return null;
     }
 
     public Skill GetSkill(Character character, string skillName)
@@ -128,39 +127,18 @@ public class PlayerActionController : MonoBehaviour
 
     public IEnumerator MoveManage(Skill skill)
     {//行動処理全般をここで行う
-        //Debug.LogFormat("{0}をしました！", skill.diceText);
-        ////技能ダイスを振る。成功したら次へ（この時振ったダイスのクリティカル、ファンブルチェック）
-        //_diceState = _diceRoller.DiceRoll(skill.successNum, "【" + skill.name + "】", _gameManager._atker);
-        //yield return _diceState;
+        Debug.LogFormat("{0}をしました！", skill.diceText);
+        //技能ダイスを振る。成功したら次へ（この時振ったダイスのクリティカル、ファンブルチェック）
+        _diceState = _diceRoller.DiceRoll(skill.successNum, "【" + skill.name + "】", _gameManager._atker);
+        yield return _diceState;
 
-        ////ダイスに成功したか？
-        //if ((NewGameManager.DiceState)_diceState.Current == NewGameManager.DiceState.Success || (NewGameManager.DiceState)_diceState.Current == NewGameManager.DiceState.Critical)
-        //{
-        //    ////////////////////////////////////////////////////////////////////////////////////////
-        //    //応急手当の場合
-        //    ////////////////////////////////////////////////////////////////////////////////////////
-        //    if (skill.name == "応急手当")
-        //    {
-        //        _num = _diceRoller.DiceRoll(1, 3);
-        //        yield return _num;
-        //        if (_gameManager._atker.currentHP == _gameManager._atker.maxHP)
-        //        {
-        //            _uiManager.CreateLog("これ以上回復しない\n（傷がない）", UIManager.Line.Line2);
-        //        }
-        //        else
-        //        {
-        //            _uiManager.UpdateCharacterHP(_gameManager._atker, (int)_num.Current);
-        //        }
-        //    }
-        //    ////////////////////////////////////////////////////////////////////////////////////////
-        //    ////////////////////////////////////////////////////////////////////////////////////////
-        //    ////////////////////////////////////////////////////////////////////////////////////////
-
-        //    _audioManager.MoveSound(skill.soundType);
-        //    yield return new WaitForSeconds(3.0f);
-        //}
-        //_gameManager._state = NewGameManager.SystemState.None;
-        //yield break;
+        //ダイスに成功したか？
+        if ((GameManager.DiceState)_diceState.Current == GameManager.DiceState.Success || (GameManager.DiceState)_diceState.Current == GameManager.DiceState.Critical)
+        {
+            skill.Move(_gameManager._atker, _uiManager, _diceRoller, _audioManager);
+            yield return new WaitForSeconds(3.0f);
+        }
+        _gameManager._state = GameManager.SystemState.None;
         yield return null;
     }
 }

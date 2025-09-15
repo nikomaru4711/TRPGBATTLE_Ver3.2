@@ -18,8 +18,10 @@ public class TitleSceneManager : MonoBehaviour
     //アクセス修飾子の後にstaticでグローバル化
     public PlayerCharacter _playerJson;
     public static Character _player;
+    public static GameManager.PieceType pieceType;
 
-[SerializeField] private ReadJson _readJson;
+
+    [SerializeField] private ReadJson _readJson;
     [SerializeField] private GameObject _textTitle;
     [SerializeField] private GameObject _textDetail;
     [SerializeField] private GameObject _specialThanks;
@@ -97,6 +99,14 @@ public class TitleSceneManager : MonoBehaviour
                 ///CC出力：false
                 bool luckOutput = (_playerJson.data.status[3].label == "幸運");
                 bool CCorCCB = commands[1].Contains("CCB");
+                if (_playerJson.data.status[3].label == "幸運")
+                {
+                    if (commands[1].Contains("CCB")) { pieceType = GameManager.PieceType.luck_CCB; } else { pieceType = GameManager.PieceType.luck_CC; }
+                }
+                else
+                {
+                    if (commands[1].Contains("CCB")) { pieceType = GameManager.PieceType.Noluck_CCB; } else { pieceType = GameManager.PieceType.Noluck_CC; }
+                }
 
                 Regex regex = new Regex(@"(^$|STR|CON|POW|DEX|APP|SIZ|INT|EDU|正気度ロール|ダメージ判定)");
                 string marker;
@@ -107,8 +117,8 @@ public class TitleSceneManager : MonoBehaviour
                 foreach (string command in commands)
                 {
                     //特定のcommandは処理しない
-                    if (regex.IsMatch(command.ToString())) { Debug.LogFormat("これは飛ばす。：{0}",command); continue; }
-                    Debug.LogFormat("OK!：{0}", command);
+                    if (regex.IsMatch(command.ToString())) { continue; }
+                    Debug.LogFormat("make command：{0}", command);
                     //数値の抜き出し
                     startIndex = command.IndexOf(marker);
                     endIndex = command.IndexOf(" 【");
@@ -126,8 +136,13 @@ public class TitleSceneManager : MonoBehaviour
                     }
                     if(luckOutput){ dump_text = _playerJson.data.status[3].value.ToString(); }
                     Debug.LogFormat("dump_text = {0}", dump_text);
-                    _player.skills.Add(new Skill("テスト", command, int.Parse(dump_text), AudioManager.Move.None));
-
+                    string[] parts = command.Split(new char[] { '【', '】' });
+                    if (parts[1] == "応急手当") { 
+                        _player.skills.Add(new Heal(command, "応急手当", int.Parse(dump_text), AudioManager.Move.FirstAid, 3)); 
+                    } else
+                    {
+                        _player.skills.Add(new Skill(command, "", int.Parse(dump_text), AudioManager.Move.None));
+                    }
                 }
 
                 ///////////////////////
@@ -135,12 +150,9 @@ public class TitleSceneManager : MonoBehaviour
                 ///////////////////////
                 PhaseChange(State.phase2);
                 _optionList.Clear();
-                Debug.Log("qwerty");
-                foreach (Skill skill in _player.skills){ Debug.LogFormat("skill.name：{0}",skill.name); _optionList.Add(skill.name); Debug.LogFormat("Add OptionList：{0}", skill.name); }
-                Debug.Log("asdfg");
+                foreach (Skill skill in _player.skills){ _optionList.Add(skill.diceText); }
                 _dropdown = _methodPref.gameObject.transform.GetChild(1).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Dropdown>();
                 _dropdown.ClearOptions();
-                Debug.LogFormat("optionList：{0}",_optionList);
                 _dropdown.AddOptions(_optionList);
                 _state = State.phase2;
                 break;
@@ -170,7 +182,6 @@ public class TitleSceneManager : MonoBehaviour
                     //Weaponの作成//
                     ////////////////
                     _dumpInt = _player.skills.FindIndex(skill => skill.diceText == _dumpText_dp1);
-                    //Debug.LogErrorFormat("Indexが見つからない。探索：skill.diceText = {0}\n探索結果：index = {1}", _dumpText_dp1,_dumpInt);
                     switch (_dumpText_dp2)
                     {
                         case"こぶしで殴る":

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class GameManager : MonoBehaviour
 {
@@ -47,11 +48,19 @@ public class GameManager : MonoBehaviour
         None,
         WaitingPlayerAction,
     }
+    public enum PieceType
+    {
+        luck_CC,
+        luck_CCB,
+        Noluck_CC,
+        Noluck_CCB,
+    }
     //スクリプトのインポート
     [SerializeField] private UIManager _uiManager;
     [SerializeField] private AudioManager _audioManager;
 
     [System.NonSerialized] public Character _player1;
+    [System.NonSerialized] public Character _enemy1;
     [System.NonSerialized] public List<Character> _allCharacterDex_az = new List<Character>();
     [System.NonSerialized] public List<Character> _allPlayer = new List<Character>();
     [System.NonSerialized] public List<Character> _allEnemy = new List<Character>();
@@ -59,17 +68,23 @@ public class GameManager : MonoBehaviour
     {
         //titleシーンからインポート
         _player1 = TitleSceneManager._player;
+        _allCharacterDex_az.Add(_player1);
         _uiManager.CreateIcon(_player1);
         //敵の生成
-        ///////////////////////////////////////////////////////////////////////////
-        ///////////////////////////////////////////////////////////////////////////
+        _enemy1 = new Character(1, "Skeleton", 15, 18, "Enemy_Icon", CharacterKind.Enemy);
+        _allCharacterDex_az.Add(_enemy1);
+        
+        _uiManager.CreateIcon(_enemy1);
+        _uiManager.CreateEnemyAppearance(_enemy1);
 
-        //敵のUI反映
 
         //プレイヤーの技能のUIButton生成
+        foreach (Skill skill in _player1.skills) { 
+            if(skill.name == "応急手当") { _uiManager.CreateButton(skill); }
+        }
+        foreach (Weapon weapon in _player1.weapons) { _uiManager.CreateButton(weapon); }
 
         //行動順（イニシアチブ）比較
-        _allCharacterDex_az.Add(_player1);
         _allCharacterDex_az.Sort((a, b) => b.dex - a.dex);
 
         //PlayerとEnemyのリスト作成
@@ -83,6 +98,7 @@ public class GameManager : MonoBehaviour
         }
 
         //ゲーム開始
+        //StartCoroutine("System");
     }
 
     private int _turnIndex = 0;
@@ -173,13 +189,13 @@ public class GameManager : MonoBehaviour
         return;
     }
 
-    public void GameOver()
-    {
+    //public void GameOver()
+    //{
 
-    }
+    //}
 
-    public void GameClear()
-    {
+    //public void GameClear()
+    //{
 
-    }
+    //}
 }

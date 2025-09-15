@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameManager _gameManager;
     [SerializeField] private AudioManager _audioManager;
     [SerializeField] private PlayerActionController _playerActionController;
+    [SerializeField] private ImageLoader _imageLoader;
 
     //代入型private
     [SerializeField] private GameObject _logContent;
@@ -110,10 +111,9 @@ public class UIManager : MonoBehaviour
         //画像設定
         _image = GameObject.Find("Icon");
         _image.name = "Icon_" + character.id;
-        if (character.imagePath != null)
-        {
-            _image.GetComponent<Image>().sprite = Resources.Load<Sprite>(character.imagePath);
-        }
+        _imageLoader.StartCoroutine(_imageLoader.LoadImage(_image, character.imagePath));
+        if (_image.GetComponent<Image>().sprite == null) { Resources.Load<Sprite>("Seeker_default"); }
+
         _text = GameObject.Find("Text_DEX");
         _text.name = "Text_DEX_" + character.id;
         _text.GetComponent<TMP_Text>().SetText(character.dex.ToString());
@@ -167,12 +167,30 @@ public class UIManager : MonoBehaviour
         //親を設定、オブジェクト名の変更、テキスト編集、イベント設定
         button.transform.SetParent(_fightContent.transform);
         button.name = "button_" + weapon.actionName;
-        if(weapon.successNum > 99)
+        switch (TitleSceneManager.pieceType)
         {
-            button.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().SetText("  <size=34>CCB<=" + weapon.successNum + "【" + weapon.actionName + "】</size>");
-        } else
-        {
-            button.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().SetText("  CCB<=" + weapon.successNum + "【" + weapon.actionName + "】");
+            case GameManager.PieceType.luck_CC:
+            case GameManager.PieceType.Noluck_CC:
+                if (weapon.successNum > 99)
+                {
+                    button.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().SetText("  CC<=" + weapon.successNum + "【" + weapon.actionName + "】");
+                }
+                else
+                {
+                    button.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().SetText("  CC<=" + weapon.successNum + "【" + weapon.actionName + "】");
+                }
+                break;
+            case GameManager.PieceType.luck_CCB:
+            case GameManager.PieceType.Noluck_CCB:
+                if (weapon.successNum > 99)
+                {
+                    button.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().SetText("  CCB<=" + weapon.successNum + "【" + weapon.actionName + "】");
+                }
+                else
+                {
+                    button.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().SetText("  CCB<=" + weapon.successNum + "【" + weapon.actionName + "】");
+                }
+                break;
         }
         button.GetComponent<Button>().onClick.AddListener(() => 
         {
@@ -186,6 +204,7 @@ public class UIManager : MonoBehaviour
     {
         if(skill.name != "回避")
         {
+            Debug.LogFormat("スキルボタン作成。\nCCB<={0}【{1}】",skill.successNum, skill.actionName);
             GameObject button = Instantiate(_buttonPref);
             //親を設定、オブジェクト名の変更、テキスト編集、イベント設定
             button.transform.SetParent(_actContent.transform);
