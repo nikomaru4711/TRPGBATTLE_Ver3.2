@@ -9,8 +9,8 @@ public class Character
     public int dex;
     public string imagePath;
     public bool isDead;
-    public GameManager.CriticalState criticalState = GameManager.CriticalState.None;
-    public GameManager.FambleState fambleState = GameManager.FambleState.None;
+    public GameManager.CriticalState criticalState;
+    public GameManager.FambleState fambleState;
     public List<Skill> skills = new List<Skill>();
     public List<Weapon> weapons = new List<Weapon>();
     public GameManager.CharacterKind kind;
@@ -25,6 +25,8 @@ public class Character
         this.imagePath = imagePath;
         this.isDead = false;
         this.kind = kind;
+        criticalState = GameManager.CriticalState.None;
+        fambleState = GameManager.FambleState.None;
     }
     public void Damage(int damage)
     {

@@ -97,8 +97,11 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        //ボタンのインタラクティブ初期化
+        _uiManager.IsInteractable(false);
+
         //ゲーム開始
-        //StartCoroutine("System");
+        StartCoroutine("System");
     }
 
     private int _turnIndex = 0;
@@ -111,6 +114,7 @@ public class GameManager : MonoBehaviour
         //バトル
         while (_allEnemy.Count != 0 && _allPlayer.Count != 0)
         {
+            //Debug.LogFormat("_turn：{0}\n_turnIndex：{1}\n_allCharacterDex_az.Count：{2}", _turn, _turnIndex, _allCharacterDex_az.Count);
             //ラウンドとターンの制御
             if (_turn == 0) { _round++; _uiManager.CreateLog("--Round" + _round + "------------", UIManager.Line.Line1, 55); }
             _turn++;
@@ -125,7 +129,7 @@ public class GameManager : MonoBehaviour
             //_deferがターン終了時に死んでいたら死亡処理をする。
             if (_dfner.currentHP <= 0) { _dfner.isDead = true; Dead(_dfner); }
             _turnIndex++;
-            if (_turnIndex <= _allCharacterDex_az.Count) { _turnIndex = 0; }
+            if (_allCharacterDex_az.Count <= _turnIndex) { _turnIndex = 0;  _turn = 0; }
         }
         //バトル終了後
         if (_allPlayer.Count != 0)
@@ -140,16 +144,20 @@ public class GameManager : MonoBehaviour
     {
         _atker = actCharacter;
         _dfner = SelectDFN(actCharacter.kind);
+        //Debug.LogFormat("このターンのatk：{0}\nこのターンのdfn：{1}",_atker.Cname, _dfner.Cname);
         switch (actCharacter.kind)
         {
             case CharacterKind.Player:
                 //パネル用意依頼
-                _state = SystemState.WaitingPlayerAction;
+                _uiManager.IsInteractable(true);
                 //行動受け付け
+                _state = SystemState.WaitingPlayerAction;
+                //Debug.Log("PL行動受け付け");
                 ///変数を用意して置いて、そこに構想するものの種類を代入させる
                 ///そして、_stateをNoneにして処理続行
                 yield return new WaitUntil(() => { return _state != SystemState.WaitingPlayerAction; });
-                //関連パネルをすべて非表示に（ここでしなくてもよいかも）
+                //関連パネルをすべて非表示にする
+                ///ボタンを押したときの処理に含めている。
                 break;
             case CharacterKind.Enemy:
                 //パネル用意依頼
@@ -157,6 +165,7 @@ public class GameManager : MonoBehaviour
                 //処理
                 break;
         }
+        //Debug.Log("ターン終了.");
         yield return null;
     }
     public Character SelectDFN(CharacterKind atkKind)

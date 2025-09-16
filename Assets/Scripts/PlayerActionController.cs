@@ -135,9 +135,11 @@ public class PlayerActionController : MonoBehaviour
         //ダイスに成功したか？
         if ((GameManager.DiceState)_diceState.Current == GameManager.DiceState.Success || (GameManager.DiceState)_diceState.Current == GameManager.DiceState.Critical)
         {
-            skill.Move(_gameManager._atker, _uiManager, _diceRoller, _audioManager);
+            Debug.LogFormat("【{0}】を実行します",skill.name);
+            yield return skill.Move(_gameManager._atker, _uiManager, _diceRoller, _audioManager);
             yield return new WaitForSeconds(3.0f);
         }
+        Debug.Log("行動終了.");
         _gameManager._state = GameManager.SystemState.None;
         yield return null;
     }

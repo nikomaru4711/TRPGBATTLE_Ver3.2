@@ -21,7 +21,7 @@ using UnityEngine;
             this.successNum = successNum;
             this.soundType = soundType;
         }
-        public IEnumerator Move(Character character, UIManager _uiManager, DiceRoller _diceRoller, AudioManager _audioManager) { Debug.LogError("スーパークラスのMoveが呼び出されています！"); yield return null; }
+        public virtual IEnumerator Move(Character character, UIManager _uiManager, DiceRoller _diceRoller, AudioManager _audioManager) { Debug.LogError("スーパークラスのMoveが呼び出されています！"); yield return null; }
     }
 
     public class Heal : Skill
@@ -31,18 +31,19 @@ using UnityEngine;
         {
             this.healUpper = healUpper;
         }
-        public new IEnumerator Move(Character character, UIManager _uiManager, DiceRoller _diceRoller, AudioManager _audioManager)
+        public override IEnumerator Move(Character character, UIManager _uiManager, DiceRoller _diceRoller, AudioManager _audioManager)
         {
+            Debug.Log("Move() in Skill.");
             IEnumerator enumerator = _diceRoller.DiceRoll(1, healUpper);
             yield return enumerator;
             if(character.maxHP < character.currentHP + (int)enumerator.Current)
             {
-                _uiManager.CreateLog("[" + character.Cname + "]HP:" + character.currentHP + "→" + character.maxHP,UIManager.Line.Line1);
+                _uiManager.CreateLog("<size=35>[" + character.Cname + "]\nHP:" + character.currentHP + "→" + character.maxHP + "</size>",UIManager.Line.Line2);
                 character.currentHP = character.maxHP;
 
             } else
             {
-                _uiManager.CreateLog("[" + character.Cname + "]HP:" + character.currentHP + "→" + (character.currentHP + (int)enumerator.Current), UIManager.Line.Line1);
+                _uiManager.CreateLog("<size=35>[" + character.Cname + "]\nHP:" + character.currentHP + "→" + (character.currentHP + (int)enumerator.Current) + "</size>", UIManager.Line.Line2);
                 character.currentHP += (int)enumerator.Current;
             }
             _audioManager.MoveSound(soundType);
