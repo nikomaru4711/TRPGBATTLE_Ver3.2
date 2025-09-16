@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
         _allCharacter.Add(_player1);
         _uiManager.CreateIcon(_player1);
         //“G‚Ì¶¬
-        _enemy1 = new Character(1, "Skeleton", 15, 18, "Enemy_Icon", CharacterKind.Enemy);
+        _enemy1 = new Character(1, "Skeleton", 15, 70, "Enemy_Icon", CharacterKind.Enemy);
         _enemy1.weapons.Add(new Weapon("ƒJƒ}","ƒJƒ}",75,1,7,AudioManager.Move.Hunmer));
         _enemy1.weapons.Add(new Weapon("‰£‚é","‹ßÚUŒ‚",85,1,3,AudioManager.Move.Panch));
         _enemy1.skills.Add(new Skill("CC<=55y‰ñ”ğz","‰ñ”ğ",55,AudioManager.Move.Dodge));
