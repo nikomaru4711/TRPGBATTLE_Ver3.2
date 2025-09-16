@@ -24,6 +24,8 @@ public class Character
         this.dex = dex;
         this.imagePath = imagePath;
         this.isDead = false;
+        skills.Clear();
+        weapons.Clear();
         this.kind = kind;
         criticalState = GameManager.CriticalState.None;
         fambleState = GameManager.FambleState.None;

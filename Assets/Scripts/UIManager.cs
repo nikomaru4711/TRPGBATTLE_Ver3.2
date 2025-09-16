@@ -227,7 +227,9 @@ public class UIManager : MonoBehaviour
 
     public void UpdateCharacterUI(Character character)
     {
+        _character = GameObject.Find("Character_" + character.id);
         //Imageの更新
+        if(_character == null) { Debug.LogError("_characterが見つからなかったです。"); } 
         _character.transform.GetChild(0).gameObject.GetComponent<Image>().fillAmount = ((float)character.currentHP / (float)character.maxHP);
         //背景色の調整
         if (character.currentHP / character.maxHP <= 0.8)
@@ -338,17 +340,16 @@ public class UIManager : MonoBehaviour
         GameObject.Find("BattleBackground_0").GetComponent<Image>().sprite = Resources.Load<Sprite>("ClearBackground");
         _fightPanel.SetActive(false);
         _actPanel.SetActive(false);
-        //GameObject.Find("").SetActive(false);
         GameObject.Find("Log").SetActive(false);
         GameObject.Find("Button_Fight").SetActive(false);
         GameObject.Find("Button_Act").SetActive(false);
-        for (i = 0; _gameManager._allCharacterDex_az[i] != null;i++)
+        foreach (Character character in _gameManager._allCharacter)
         {
-            if(_gameManager._allCharacterDex_az[i].kind == GameManager.CharacterKind.Enemy)
+            GameObject.Find("Character_" + character.id).SetActive(false);
+            if (character.kind == GameManager.CharacterKind.Enemy)
             {
-                GameObject.Find("Enemy_" + _gameManager._allCharacterDex_az[i].id).SetActive(false);
+                GameObject.Find("Enemy_" + character.id).SetActive(false);
             }
-            GameObject.Find("Character_" + _gameManager._allCharacterDex_az[i].id).SetActive(false);
         }
         //音の再生
         _audioManager.ChangeBGM(AudioManager.BGMType.Clear);

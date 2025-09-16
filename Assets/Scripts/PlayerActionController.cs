@@ -21,7 +21,6 @@ public class PlayerActionController : MonoBehaviour
     //→、アタッカー、ディフェンダーをGameManagerで管理して、そこから参照するのがよさそう。
     public IEnumerator AttackManage(Weapon weapon)
     {
-        Debug.LogFormat("テスト：{0}で攻撃をしました！", weapon.name);
         //状態の代入
         _isAvoidable = weapon.avoidable;
         _damageMultiplier = 1;
@@ -60,7 +59,7 @@ public class PlayerActionController : MonoBehaviour
         }
 
         //技能ダイスを振る。成功したら次へ（この時振ったダイスのクリティカル、ファンブルチェック）
-        _diceState = _diceRoller.DiceRoll(weapon.successNum, "【" + weapon.name + "】", _gameManager._atker);
+        _diceState = _diceRoller.DiceRoll(weapon.successNum, "【" + weapon.actionName + "】", _gameManager._atker);
         yield return _diceState;
         //攻撃できたか？
         if ((GameManager.DiceState)_diceState.Current == GameManager.DiceState.Success || (GameManager.DiceState)_diceState.Current == GameManager.DiceState.Critical)
@@ -76,8 +75,11 @@ public class PlayerActionController : MonoBehaviour
                 if (_gameManager._dfner.fambleState != GameManager.FambleState.Unavoidable)
                 {
                     //回避のスキル情報を取り出す
-                    _skill = GetSkill(_gameManager._dfner, "避ける");
+                    _skill = GetSkill(_gameManager._dfner, "回避");
+                    Debug.Log(_skill);
+                    Debug.Log(_gameManager._dfner.Cname);
                     //相手の回避ダイス
+                    Debug.LogFormat("_dfner:{0}\nnum：{1}", _gameManager._dfner.Cname,_skill.successNum);
                     _avoidState = _diceRoller.DiceRoll(_skill.successNum, "【回避】", _gameManager._dfner);
                     yield return _avoidState;
                     if ((GameManager.DiceState)_avoidState.Current == GameManager.DiceState.Success || (GameManager.DiceState)_avoidState.Current == GameManager.DiceState.Critical)
@@ -93,34 +95,30 @@ public class PlayerActionController : MonoBehaviour
             }
 
             //ダメージ計算
-            if (!weapon.avoidable || (GameManager.DiceState)_avoidState.Current == GameManager.DiceState.Fail || (GameManager.DiceState)_avoidState.Current == GameManager.DiceState.Famble)
-            {
-                Debug.Log("ダメージダイスを振ります");
-                _damage = _diceRoller.DiceRoll(weapon.diceNum, weapon.damageNum, _damageMultiplier);
-                yield return _damage;
-                _audioManager.MoveSound(weapon.soundType);
-                int oldHP = _gameManager._dfner.currentHP;
-                _gameManager._dfner.currentHP -= (int)_damage.Current;
-                if (_gameManager._dfner.currentHP <= 0) { _gameManager._dfner.currentHP = 0; }
-                _uiManager.UpdateCharacterUI(_gameManager._dfner);
-                _uiManager.CreateLog("【" + _gameManager._dfner.Cname + "】HP : " + oldHP + "→" + _gameManager._dfner.currentHP, Line.Line1);
-                yield return new WaitForSeconds(1.5f);
-            }
+            Debug.Log("ダメージダイスを振ります");
+            _damage = _diceRoller.DiceRoll(weapon.diceNum, weapon.damageNum, _damageMultiplier);
+            yield return _damage;
+            _audioManager.MoveSound(weapon.soundType);
+            int oldHP = _gameManager._dfner.currentHP;
+            _gameManager._dfner.currentHP -= (int)_damage.Current;
+            if (_gameManager._dfner.currentHP <= 0) { _gameManager._dfner.currentHP = 0; }
+            _uiManager.UpdateCharacterUI(_gameManager._dfner);
+            _uiManager.CreateLog("【" + _gameManager._dfner.Cname + "】\nHP : " + oldHP + "→" + _gameManager._dfner.currentHP, Line.Line2);
+            yield return new WaitForSeconds(1.5f);
         }
         _gameManager._state = GameManager.SystemState.None;
         yield return null;
     }
 
-    public Skill GetSkill(Character character, string skillName)
+    public Skill GetSkill(Character character, string name)
     {
-        Debug.LogFormat("Input：{0}", skillName);
-        if (character.kind == GameManager.CharacterKind.Player)
-        {
+
+        Debug.LogFormat("{0}の【{1}】を探します。", character.Cname, name);
             foreach(Skill skill in character.skills)
             {
-                if(skill.actionName == skillName) { return skill; }
+                Debug.Log(skill.actionName);
+                if(skill.actionName == name) { return skill; }
             }
-        }
         _uiManager.CreateLog("<color=red>Error!</color>SearchingSkill Failed", UIManager.Line.Line1);
         return null;
     }

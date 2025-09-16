@@ -25,23 +25,10 @@ public class GameManager : MonoBehaviour
         Famble,
         None
     }
-
-    public enum MoveState
-    {
-        Fight,
-        Act
-    }
-
     public enum CharacterKind
     {
         Player,
         Enemy
-    }
-
-    public enum TurnState
-    {
-        PlayerTurn,
-        EnemyTurn,
     }
     public enum SystemState
     {
@@ -58,22 +45,30 @@ public class GameManager : MonoBehaviour
     //スクリプトのインポート
     [SerializeField] private UIManager _uiManager;
     [SerializeField] private AudioManager _audioManager;
+    [SerializeField] private PlayerActionController _playerActionController;
+    [SerializeField] private DiceRoller _diceRoller;
 
     [System.NonSerialized] public Character _player1;
     [System.NonSerialized] public Character _enemy1;
-    [System.NonSerialized] public List<Character> _allCharacterDex_az = new List<Character>();
+    [System.NonSerialized] public List<Character> _aliveCharacterDex_az = new List<Character>();
+    [System.NonSerialized] public List<Character> _allCharacter = new List<Character>();
     [System.NonSerialized] public List<Character> _allPlayer = new List<Character>();
     [System.NonSerialized] public List<Character> _allEnemy = new List<Character>();
     void Start()
     {
         //titleシーンからインポート
         _player1 = TitleSceneManager._player;
-        _allCharacterDex_az.Add(_player1);
+        _aliveCharacterDex_az.Add(_player1);
+        _allCharacter.Add(_player1);
         _uiManager.CreateIcon(_player1);
         //敵の生成
         _enemy1 = new Character(1, "Skeleton", 15, 18, "Enemy_Icon", CharacterKind.Enemy);
-        _allCharacterDex_az.Add(_enemy1);
-        
+        _enemy1.weapons.Add(new Weapon("カマ","カマ",75,1,7,AudioManager.Move.Hunmer));
+        _enemy1.weapons.Add(new Weapon("殴る","近接攻撃",85,1,3,AudioManager.Move.Panch));
+        _enemy1.skills.Add(new Skill("CC<=55【回避】","回避",55,AudioManager.Move.Dodge));
+        _aliveCharacterDex_az.Add(_enemy1);
+        _allCharacter.Add(_enemy1);
+
         _uiManager.CreateIcon(_enemy1);
         _uiManager.CreateEnemyAppearance(_enemy1);
 
@@ -85,10 +80,10 @@ public class GameManager : MonoBehaviour
         foreach (Weapon weapon in _player1.weapons) { _uiManager.CreateButton(weapon); }
 
         //行動順（イニシアチブ）比較
-        _allCharacterDex_az.Sort((a, b) => b.dex - a.dex);
+        _aliveCharacterDex_az.Sort((a, b) => b.dex - a.dex);
 
         //PlayerとEnemyのリスト作成
-        foreach (Character character in _allCharacterDex_az)
+        foreach (Character character in _aliveCharacterDex_az)
         {
             switch (character.kind)
             {
@@ -107,6 +102,7 @@ public class GameManager : MonoBehaviour
     private int _turnIndex = 0;
     private int _turn = 0;
     private int _round = 0;
+    private IEnumerator enumerator;
     [System.NonSerialized] public Character _atker;
     [System.NonSerialized] public Character _dfner;
     public IEnumerator System()
@@ -118,21 +114,21 @@ public class GameManager : MonoBehaviour
             //ラウンドとターンの制御
             if (_turn == 0) { _round++; _uiManager.CreateLog("--Round" + _round + "------------", UIManager.Line.Line1, 55); }
             _turn++;
-            switch (_allCharacterDex_az[_turnIndex].kind)
+            switch (_aliveCharacterDex_az[_turnIndex].kind)
             {
                 case CharacterKind.Player: _uiManager.CreateLog("ー探索者のターンー", UIManager.Line.Line1, 45); break;
                 case CharacterKind.Enemy: _uiManager.CreateLog("ー敵のターンー", UIManager.Line.Line1, 45); break;
             }
             //ターンの開始
-            IEnumerator enumerator = Turn(_allCharacterDex_az[_turnIndex]);
+            IEnumerator enumerator = Turn(_aliveCharacterDex_az[_turnIndex]);
             yield return enumerator;
             //_deferがターン終了時に死んでいたら死亡処理をする。
             if (_dfner.currentHP <= 0) { _dfner.isDead = true; Dead(_dfner); }
             _turnIndex++;
-            if (_allCharacterDex_az.Count <= _turnIndex) { _turnIndex = 0;  _turn = 0; }
+            if (_aliveCharacterDex_az.Count <= _turnIndex) { _turnIndex = 0;  _turn = 0; }
         }
         //バトル終了後
-        if (_allPlayer.Count != 0)
+        if (_allPlayer.Count == 0)
         { _uiManager.StartCoroutine("GameOverProcces"); }
         else
         { _uiManager.StartCoroutine("ClearProcess"); _audioManager.EnemyDeadSound(); }
@@ -143,8 +139,10 @@ public class GameManager : MonoBehaviour
     public IEnumerator Turn(Character actCharacter)
     {
         _atker = actCharacter;
-        _dfner = SelectDFN(actCharacter.kind);
-        //Debug.LogFormat("このターンのatk：{0}\nこのターンのdfn：{1}",_atker.Cname, _dfner.Cname);
+        enumerator = SelectDFN(actCharacter.kind);
+        yield return enumerator;
+        _dfner = (Character)enumerator.Current;
+        Debug.LogFormat("このターンのatk：{0}\nこのターンのdfn：{1}", _atker.Cname, _dfner.Cname);
         switch (actCharacter.kind)
         {
             case CharacterKind.Player:
@@ -160,30 +158,39 @@ public class GameManager : MonoBehaviour
                 ///ボタンを押したときの処理に含めている。
                 break;
             case CharacterKind.Enemy:
-                //パネル用意依頼
-                //行動受け付け
+
+                IEnumerator _index = _diceRoller.DiceRoll(1, _atker.weapons.Count);
+                yield return _index;
+                Debug.LogFormat("_atker.weapons.Count：{0}", _atker.weapons.Count);
+                Debug.LogFormat("num：{0}", (int)_index.Current);
+                yield return _playerActionController.AttackManage(_atker.weapons[(int)_index.Current - 1]);
+                
                 //処理
                 break;
         }
         //Debug.Log("ターン終了.");
         yield return null;
     }
-    public Character SelectDFN(CharacterKind atkKind)
+    public IEnumerator SelectDFN(CharacterKind atkKind)
     {
         int index;
-        if (_allCharacterDex_az.Count <= 2)
+        if (_aliveCharacterDex_az.Count <= 2)
         {
-            return _allEnemy[0];
+            yield return _allEnemy[0];
         }
         switch (atkKind)
         {
             case CharacterKind.Player:
                 index = Random.Range(0, _allEnemy.Count);
-                return _allEnemy[index];
+                Debug.LogFormat("SelectDFN\n_dfner = {0}", _allEnemy[index].Cname);
+                yield return _allEnemy[index];
+                break;
             case CharacterKind.Enemy:
                 index = Random.Range(0, _allPlayer.Count);
-                return _allPlayer[index];
-            default: return null;
+                Debug.LogFormat("SelectDFN\n_dfner = {0}", _allPlayer[index].Cname);
+                yield return _allPlayer[index];
+                break;
+            default: yield return null; break;
         }
     }
 
@@ -194,7 +201,7 @@ public class GameManager : MonoBehaviour
             case CharacterKind.Player: _allPlayer.Remove(character); break;
             case CharacterKind.Enemy: _allEnemy.Remove(character); break;
         }
-        _allCharacterDex_az.Remove(character);
+        _aliveCharacterDex_az.Remove(character);
         return;
     }
 

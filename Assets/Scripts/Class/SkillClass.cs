@@ -47,6 +47,7 @@ using UnityEngine;
                 character.currentHP += (int)enumerator.Current;
             }
             _audioManager.MoveSound(soundType);
-            yield return null;
+        Å@Å@_uiManager.UpdateCharacterUI(character);
+        yield return null;
         }
     }

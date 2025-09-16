@@ -1,13 +1,10 @@
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Text.RegularExpressions;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.UI;
-using UniRx;
-using System;
-using UnityEngine.Timeline;
+using static GameManager;
 public class TitleSceneManager : MonoBehaviour
 {
     public enum State
@@ -29,6 +26,7 @@ public class TitleSceneManager : MonoBehaviour
     [SerializeField] private GameObject _inputJson;
     [SerializeField] private GameObject _buttonStart;
     [SerializeField] private GameObject _validateErrorPanel;
+    [SerializeField] private GameObject _atkMethodErrorPanel;
     [SerializeField] private GameObject _inputErrorPanel;
     [SerializeField] private GameObject _methodPref;
     [SerializeField] private GameObject _registAtk;
@@ -114,6 +112,9 @@ public class TitleSceneManager : MonoBehaviour
                 string dump_text;
                 int startIndex;
                 int endIndex;
+                //
+                bool isHeal = true;
+                //
                 foreach (string command in commands)
                 {
                     //ì¡íËÇÃcommandÇÕèàóùÇµÇ»Ç¢
@@ -134,16 +135,37 @@ public class TitleSceneManager : MonoBehaviour
                         Debug.LogErrorFormat("ÉRÉ}ÉìÉhñºÅF{0}",command);
                         return;
                     }
-                    if(luckOutput){ dump_text = _playerJson.data.status[3].value.ToString(); }
+                    if(luckOutput && dump_text == "{çKâ^}"){ dump_text = _playerJson.data.status[3].value.ToString(); }
                     Debug.LogFormat("dump_text = {0}", dump_text);
                     string[] parts = command.Split(new char[] { 'Åy', 'Åz' });
-                    if (parts[1] == "âûã}éËìñ") { 
-                        _player.skills.Add(new Heal(command, "âûã}éËìñ", int.Parse(dump_text), AudioManager.Move.FirstAid, 3)); 
-                    } else
+                    if (parts[1] == "âûã}éËìñ") {
+                        _player.skills.Add(new Heal(command, "âûã}éËìñ", int.Parse(dump_text), AudioManager.Move.FirstAid, 3));
+                        isHeal = false;
+                    }
+                    else if(parts[1] == "âÒî")
+                    {
+                        _player.skills.Add(new Skill(command, "âÒî", int.Parse(dump_text), AudioManager.Move.None));
+                    }
+                    else
                     {
                         _player.skills.Add(new Skill(command, "", int.Parse(dump_text), AudioManager.Move.None));
                     }
                 }
+                if (isHeal)
+                {
+                    switch (pieceType)
+                    {
+                        case GameManager.PieceType.Noluck_CC:
+                        case GameManager.PieceType.luck_CC:
+                            _player.skills.Add(new Heal("CC<=30Åyâûã}éËìñÅz", "âûã}éËìñ", 30, AudioManager.Move.FirstAid, 3));
+                            break;
+                        case GameManager.PieceType.Noluck_CCB:
+                        case GameManager.PieceType.luck_CCB:
+                            _player.skills.Add(new Heal("CCB<=30Åyâûã}éËìñÅz", "âûã}éËìñ", 30, AudioManager.Move.FirstAid, 3));
+                            break;
+                    }
+                }
+
 
                 ///////////////////////
                 //ÇPÅDÉIÉvÉVÉáÉìí«â¡ //
@@ -157,6 +179,12 @@ public class TitleSceneManager : MonoBehaviour
                 _state = State.phase2;
                 break;
             case State.phase2:
+                if(_atkMethodList.Count == 0)
+                {
+                    AtkMethodErrorPanel(true);
+                    return;
+                }
+
                 foreach(GameObject obj in _atkMethodList)
                 {
                     try
@@ -182,6 +210,7 @@ public class TitleSceneManager : MonoBehaviour
                     //WeaponÇÃçÏê¨//
                     ////////////////
                     _dumpInt = _player.skills.FindIndex(skill => skill.diceText == _dumpText_dp1);
+                    Debug.LogFormat("actionNameÅF{0}\nnameÅF{1}",_dumpText, _dumpText_dp1);
                     switch (_dumpText_dp2)
                     {
                         case"Ç±Ç‘ÇµÇ≈â£ÇÈ":
@@ -261,6 +290,14 @@ public class TitleSceneManager : MonoBehaviour
         _specialThanks.SetActive(!index);
         _validateErrorPanel.SetActive(index);
     }
+    public void AtkMethodErrorPanel(bool index)
+    {
+        _inputJson.GetComponent<TMP_InputField>().interactable = !index;
+        _buttonStart.GetComponent<Button>().interactable = !index;
+        _specialThanks.SetActive(!index);
+        _atkMethodErrorPanel.SetActive(index);
+    }
+
     public void InputErrorPanel(bool index)
     {
         foreach(GameObject obj in _atkMethodList)

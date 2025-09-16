@@ -616,6 +616,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _uiManager: {fileID: 95185030}
   _audioManager: {fileID: 95185033}
+  _playerActionController: {fileID: 95185037}
+  _diceRoller: {fileID: 95185038}
 --- !u!114 &95185040
 MonoBehaviour:
   m_ObjectHideFlags: 0

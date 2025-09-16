@@ -42,7 +42,6 @@ public class DiceRoller : MonoBehaviour
             else
             {
                 _message += "," + num;
-
             }
         }
         if (multiplier != 1)
@@ -79,7 +78,7 @@ public class DiceRoller : MonoBehaviour
                 _message = "1d100<=" + successupper + skill + "\n<color=blue>(1d100<=" + successupper + ") > " + total + " > \n決定的成功/スペシャル</color>";
                 _uiManager.CreateLog(_message, UIManager.Line.Line3);
                 yield return new WaitForSeconds(_interval);
-                _chooseEffect = DiceRoll(1, 2);
+                _chooseEffect = DiceRoll(1, 3);
                 yield return _chooseEffect;
                 if ((int)_chooseEffect.Current == 1)
                 {
@@ -112,7 +111,7 @@ public class DiceRoller : MonoBehaviour
                 _message = "1d100<=" + successupper + skill + "\n<color=red>(1d100<=" + successupper + ") > " + total + " > \n致命的失敗</color>";
                 _uiManager.CreateLog(_message, UIManager.Line.Line3);
                 yield return new WaitForSeconds(_interval);
-                _chooseEffect = DiceRoll(1, 2);
+                _chooseEffect = DiceRoll(1, 3);
                 yield return _chooseEffect;
                 if ((int)_chooseEffect.Current == 1)
                 {
