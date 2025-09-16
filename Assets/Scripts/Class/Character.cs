@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-
 public class Character
 {
     public int id;

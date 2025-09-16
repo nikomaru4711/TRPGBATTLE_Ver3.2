@@ -1,12 +1,10 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.U2D;
 using UnityEngine.UI;
 
 public class ImageLoader : MonoBehaviour
 {
-    private SpriteRenderer spriteRenderer; // 2DÉQÅ[ÉÄÇÃSpriteRendereróp
     public IEnumerator LoadImage(GameObject obj, string url)
     {
         Debug.LogFormat("url:{0}",url);
